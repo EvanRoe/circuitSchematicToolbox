@@ -15,12 +15,21 @@ RESISTOR_SHAPES = [
     ('line', 1.0, 0.0, 2.0, 0.0),
 ]
 
+CAPACITOR_SHAPES = [
+    ('line', -2.0, 0.0, -1.0, 0.0),
+    ('line', -1.0, -0.5, -1.0, 0.5),
+    ('line', 0.0, -0.5, 0.0, 0.5),
+    ('line', 0.0, 0.0, 1.0, 0.0),
+]
+
 class CircuitCanvas(tk.Canvas):
     def __init__(self, parent: tk.Tk, width: int=800, height: int=600, cell_px: int=CELL_PX) -> None:
         super().__init__(parent, width=width, height=height, bg=BACKGROUND_COLOUR)
         self.width = width
         self.height = height
         self.cell_px = cell_px
+        self.bind('<Motion>', self.on_motion)
+        self.bind('<Button-1>', self.on_click)
 
     def grid_to_pixel(self, col: float, row: float) -> tuple[int, int]:
         x = col * self.cell_px +  MARGIN_PX
@@ -55,6 +64,14 @@ class CircuitCanvas(tk.Canvas):
             elif kind == 'rect':
                 self.create_rectangle(x1, y1, x2, y2, outline=colour, tags='symbol')
 
+    def on_motion(self, event: tk.Event) -> None:
+        col, row = self.pixel_to_grid(event.x, event.y)
+        print(f"Column: {col} and Row: {row}")
+
+    def on_click(self, event: tk.Event) -> None:
+        col, row = self.pixel_to_grid(event.x, event.y)
+        self.draw_shapes(RESISTOR_SHAPES, col, row)
+
     def clear(self) -> None:
         self.delete('symbol')
 
@@ -67,5 +84,5 @@ if __name__ == "__main__":
     canvas.pack(pady=10)
     canvas.draw_grid()
     canvas.draw_shapes(RESISTOR_SHAPES, 5, 5)
-
+    canvas.draw_shapes(CAPACITOR_SHAPES, 10, 10)
     root.mainloop()

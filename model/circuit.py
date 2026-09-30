@@ -2,10 +2,9 @@ from component import Component
 from node import Node
 
 class Circuit():
-    def __init__(self, components: list[Component], nodes: list[Node], counters: int):
-        self.components = components
-        self.nodes = nodes
-        self.counters = counters
+    def __init__(self, components: list[Component]=None, nodes: list[Node]=None):
+        self.components = components if components is not None else []
+        self.nodes = nodes if nodes is not None else []
 
     def add_component(self, new_component: Component):
         self.components.append(new_component)
@@ -22,7 +21,7 @@ class Circuit():
     def to_netlist(self) -> str:
         netlist = ""
         for component in self.components:
-            netlist = netlist + component.to_netlist_entry + "\n"
+            netlist = netlist + component.to_netlist_entry() + "\n"
         return netlist
 
     
