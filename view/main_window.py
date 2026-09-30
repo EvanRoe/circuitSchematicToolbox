@@ -53,7 +53,8 @@ class MainWindow:
         }
 
     def _build_canvas(self) -> None:
-        self.canvas = CircuitCanvas(self.root)
+        new_circuit = Circuit()
+        self.canvas = CircuitCanvas(self.root, new_circuit)
         self.canvas.pack(side='left', expand=True, fill='both')
 
     def show_panel(self, key: str) -> None:

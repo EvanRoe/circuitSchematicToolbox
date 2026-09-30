@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
+from model.circuit import Circuit
+
 CELL_PX = 20
 MARGIN_PX = 20
 
@@ -23,11 +25,13 @@ CAPACITOR_SHAPES = [
 ]
 
 class CircuitCanvas(tk.Canvas):
-    def __init__(self, parent: tk.Tk, width: int=800, height: int=600, cell_px: int=CELL_PX) -> None:
+    def __init__(self, parent: tk.Tk, circuit: Circuit, width: int=800, height: int=600, cell_px: int=CELL_PX) -> None:
         super().__init__(parent, width=width, height=height, bg=BACKGROUND_COLOUR)
         self.width = width
         self.height = height
         self.cell_px = cell_px
+        self.circuit = circuit
+        
         self.bind('<Motion>', self.on_motion)
         self.bind('<Button-1>', self.on_click)
 
