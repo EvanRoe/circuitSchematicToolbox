@@ -1,5 +1,5 @@
-from component import Component
-from node import Node
+from model.component import Component
+from model.node import Node
 
 class Circuit():
     def __init__(self, components: list[Component], nodes: list[Node], counters: int):

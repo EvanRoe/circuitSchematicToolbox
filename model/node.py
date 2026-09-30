@@ -1,4 +1,4 @@
-from attributes import Terminal
+from model.attributes import Terminal
 
 class Node():
     def __init__(self, id: int, grid_points: list[int], connected_terminals: list[Terminal]):
