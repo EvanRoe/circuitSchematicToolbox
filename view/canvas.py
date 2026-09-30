@@ -31,6 +31,11 @@ class CircuitCanvas(tk.Canvas):
         self.bind('<Motion>', self.on_motion)
         self.bind('<Button-1>', self.on_click)
 
+        self._draw_grid()
+        self._build_readout()
+
+        
+
     def grid_to_pixel(self, col: float, row: float) -> tuple[int, int]:
         x = col * self.cell_px +  MARGIN_PX
         y = row * self.cell_px + MARGIN_PX
@@ -41,7 +46,25 @@ class CircuitCanvas(tk.Canvas):
         row = round((y - MARGIN_PX) / self.cell_px)
         return (col, row)
 
-    def draw_grid(self) -> None:
+    def _build_readout(self) -> None:
+        rows = (self.height - 2 * MARGIN_PX) // self.cell_px
+        x1, y1 = self.grid_to_pixel(0, rows - 1)
+        x2, y2 = self.grid_to_pixel(4, rows)
+        self.create_rectangle(
+            x1, y1, x2, y2,
+            fill='#cce5ff',
+            outline=SYMBOL_COLOUR,
+            tags='readout',
+        )
+        cx = (x1 + x2) / 2
+        cy = (y1 + y2) / 2
+        self.readout_text = self.create_text(
+            cx, cy,
+            tags='readout',
+            anchor='center',
+        )
+
+    def _draw_grid(self) -> None:
         cols = (self.width - 2 * MARGIN_PX) // self.cell_px
         rows = (self.height - 2 * MARGIN_PX) // self.cell_px
 
@@ -66,7 +89,7 @@ class CircuitCanvas(tk.Canvas):
 
     def on_motion(self, event: tk.Event) -> None:
         col, row = self.pixel_to_grid(event.x, event.y)
-        print(f"Column: {col} and Row: {row}")
+        self.itemconfig(self.readout_text, text=f"col:{col}, row:{row}")
 
     def on_click(self, event: tk.Event) -> None:
         col, row = self.pixel_to_grid(event.x, event.y)
@@ -82,7 +105,6 @@ if __name__ == "__main__":
 
     canvas = CircuitCanvas(root)
     canvas.pack(pady=10)
-    canvas.draw_grid()
     canvas.draw_shapes(RESISTOR_SHAPES, 5, 5)
     canvas.draw_shapes(CAPACITOR_SHAPES, 10, 10)
     root.mainloop()

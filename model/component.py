@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from attributes import Label, GridPoint, Orientation, Terminal
+from model.attributes import Label, GridPoint, Orientation, Terminal
 
 class Component(ABC):
     def __init__(self, id: int, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
