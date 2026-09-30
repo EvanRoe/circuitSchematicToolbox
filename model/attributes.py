@@ -21,7 +21,7 @@ class Terminal():
 
 @dataclass
 class Label():
-    text: str
-    value: float
-    unit: str
+    text: str = ""
+    value: float = 0.0
+    unit: str = ""
 

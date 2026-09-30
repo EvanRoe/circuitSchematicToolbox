@@ -28,26 +28,36 @@ class Component(ABC):
 
 
 class Resistor(Component):
+    kind = 'resistor'
+    prefix = 'R'
+    default_unit = "Ω"
+
     def __init__(self, id, label, position, orientation = Orientation.DEGREE_0):
         super().__init__(id, label, position, orientation)
         self.terminals = [Terminal("left", -2, 0), Terminal("right", 2, 0)]
+        
 
     def to_netlist_entry(self):
         entry = f"R{self.id} {self.label.value}{self.label.unit}"
         return entry
 
-class VoltageSource(Component):
+class Capacitor(Component):
+    kind = 'capacitor'
+    prefix = 'C'
+    default_unit = "F"
+
     def __init__(self, id, label, position, orientation = Orientation.DEGREE_0):
         super().__init__(id, label, position, orientation)
         self.terminals = [Terminal("pos", -2, 0), Terminal("neg", 2, 0)]
+        
 
     def to_netlist_entry(self):
-            entry = f"V{self.id} {self.label.value}{self.label.unit}"
+            entry = f"C{self.id} {self.label.value}{self.label.unit}"
             return entry
 
 
 COMPONENT_REGISTRY = {
     'resistor': Resistor,
-    'voltage_source': VoltageSource,
+    'capacitor': Capacitor,
 }
 
