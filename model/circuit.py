@@ -29,10 +29,40 @@ class Circuit():
     def connect_terminal(self) -> None:
         pass
 
+    def component_at(self, point: GridPoint) -> Component | None:
+        for component in self.components.values():
+            points = component.get_terminal_positions().values()
+            cols = [p.col for p in points]
+            rows = [p.row for p in points]
+            if min(cols) <= point.col <= max(cols) and min(rows) <= point.row <= max(rows):
+                return component
+        return None
+
+    def terminal_at(self, point: GridPoint) -> tuple[Component, str] | None:
+        for component in self.components.values():
+            for name, terminal in component.get_terminal_positions().items():
+                if point == terminal:
+                    return (component, name)
+        return None
+            
+
+
     def to_netlist(self) -> str:
         netlist = ""
         for component in self.components:
             netlist = netlist + component.to_netlist_entry() + "\n"
         return netlist
 
-    
+
+if __name__ == "__main__":
+    lab = Label()
+    pos = GridPoint(3, 6)
+    comp = COMPONENT_REGISTRY['resistor'](1, lab, pos)
+    comps = {'R1': comp}
+    circ = Circuit(components=comps)
+    pos2 = GridPoint(8, 8)
+    pos3 = GridPoint(10, 10)
+    circ.add_component('resistor', pos2)
+    circ.add_component('capacitor', pos3)
+    pos4 = GridPoint(9, 10)
+    circ.terminal_at(pos4)
