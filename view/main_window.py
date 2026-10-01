@@ -3,6 +3,7 @@ from tkinter import ttk
 
 from view.canvas import CircuitCanvas
 from model.circuit import Circuit
+from view.palette import ComponentPalette
 
 SIDE_PANEL_WIDTH = 220
 
@@ -47,10 +48,19 @@ class MainWindow:
         self.side_frame.pack(side='right', fill='y')
         self.side_frame.pack_propagate(False)
 
-        self.panels = {
-            key: PlaceholderPanel(self.side_frame, text=label)
-            for key, label in TABS
-        }
+        self.panels['file'] = PlaceholderPanel(
+            self.side_frame,
+            TABS[0][1],
+        )
+        self.panels['components'] = ComponentPalette(
+            self.side_frame,
+            on_pick=self.on_component_picked
+        )
+        self.panels['favourites'] = PlaceholderPanel(
+            self.side_frame,
+            TABS[2][1],
+        )
+            
 
     def _build_canvas(self) -> None:
         new_circuit = Circuit()
@@ -63,10 +73,11 @@ class MainWindow:
         self.panels[key].pack(expand=True, fill='both')
         self.current_panel = self.panels[key]
 
+    def on_component_picked(self, kind: str) -> None:
+        self.canvas.armed_kind = kind
+
 class PlaceholderPanel(ttk.Frame):
-    def __init__(self, parent, text=""):
+    def __init__(self, parent: tk.Misc, text: str="") ->  None:
         super().__init__(parent)
         ttk.Label(self, text=text).pack(padx=10, pady=10)
-
-
 

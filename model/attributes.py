@@ -21,7 +21,11 @@ class Terminal():
 
 @dataclass
 class Label():
-    text: str = ""
+    text: str = ''
     value: float = 0.0
-    unit: str = ""
+    unit: str = ''
+
+    def display(self) -> str:
+        full_value = f"{self.value}{self.unit}"
+        return full_value
 

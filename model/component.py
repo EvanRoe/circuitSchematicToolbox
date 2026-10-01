@@ -21,21 +21,33 @@ class Component(ABC):
         return terminal_positions
 
     @abstractmethod
-    def to_netlist_entry() -> str:
+    def symbol_shapes(self) -> list[tuple]:
         ...
 
-            
+    @abstractmethod
+    def to_netlist_entry(self) -> str:
+        ...
+
 
 
 class Resistor(Component):
     kind = 'resistor'
     prefix = 'R'
-    default_unit = "Ω"
+    default_unit = 'Ω'
+    display_name = 'Resistor'
 
     def __init__(self, id, label, position, orientation = Orientation.DEGREE_0):
         super().__init__(id, label, position, orientation)
         self.terminals = [Terminal("left", -2, 0), Terminal("right", 2, 0)]
-        
+
+
+    def symbol_shapes(self):
+        resistor_shapes = [
+            ('line', -2.0, 0.0, -1.0, 0.0),
+            ('rect', -1.0, -0.4, 1.0, 0.4),
+            ('line', 1.0, 0.0, 2.0, 0.0),
+        ]
+        return resistor_shapes
 
     def to_netlist_entry(self):
         entry = f"R{self.id} {self.label.value}{self.label.unit}"
@@ -44,12 +56,22 @@ class Resistor(Component):
 class Capacitor(Component):
     kind = 'capacitor'
     prefix = 'C'
-    default_unit = "F"
+    default_unit = 'F'
+    display_name = 'Capacitor'
 
     def __init__(self, id, label, position, orientation = Orientation.DEGREE_0):
         super().__init__(id, label, position, orientation)
-        self.terminals = [Terminal("pos", -2, 0), Terminal("neg", 2, 0)]
-        
+        self.terminals = [Terminal("pos", -1, 0), Terminal("neg", 1, 0)]
+
+
+    def symbol_shapes(self):
+        capacitor_shapes = [
+            ('line', -1.0, 0.0, -0.2, 0.0),
+            ('line', -0.2, -0.5, -0.2, 0.5),
+            ('line', 0.2, -0.5, 0.2, 0.5),
+            ('line', 0.2, 0.0, 1.0, 0.0),
+        ]
+        return capacitor_shapes
 
     def to_netlist_entry(self):
             entry = f"C{self.id} {self.label.value}{self.label.unit}"

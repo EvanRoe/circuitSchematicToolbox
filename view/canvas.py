@@ -1,7 +1,7 @@
 import tkinter as tk
-from tkinter import ttk
 
 from model.circuit import Circuit
+from model.component import Component
 from model.attributes import GridPoint
 
 CELL_PX = 20
@@ -11,24 +11,6 @@ GRID_COLOUR = '#d9d9d9'
 SYMBOL_COLOUR = '#000000'
 BACKGROUND_COLOUR = '#ffffff'
 
-RESISTOR_SHAPES = [
-    ('line', -2.0, 0.0, -1.0, 0.0),
-    ('rect', -1.0, -0.4, 1.0, 0.4),
-    ('line', 1.0, 0.0, 2.0, 0.0),
-]
-
-CAPACITOR_SHAPES = [
-    ('line', -2.0, 0.0, -1.0, 0.0),
-    ('line', -1.0, -0.5, -1.0, 0.5),
-    ('line', 0.0, -0.5, 0.0, 0.5),
-    ('line', 0.0, 0.0, 1.0, 0.0),
-]
-
-
-SHAPES = {
-    'resistor': RESISTOR_SHAPES,
-    'capacitor': CAPACITOR_SHAPES,
-}
 
 class CircuitCanvas(tk.Canvas):
     def __init__(self, parent: tk.Tk, circuit: Circuit, width: int=800, height: int=600, cell_px: int=CELL_PX) -> None:
@@ -37,6 +19,7 @@ class CircuitCanvas(tk.Canvas):
         self.height = height
         self.cell_px = cell_px
         self.circuit = circuit
+        self.armed_kind = ''
         
         self.bind('<Motion>', self.on_motion)
         self.bind('<Button-1>', self.on_click)
@@ -91,16 +74,35 @@ class CircuitCanvas(tk.Canvas):
         for kind, sx1, sy1, sx2, sy2 in shapes:
             x1, y1 = self.grid_to_pixel(position.col + sx1, position.row + sy1)
             x2, y2 = self.grid_to_pixel(position.col + sx2, position.row + sy2)
-            
+
             if kind == 'line':
                 self.create_line(x1, y1, x2, y2, fill=colour, tags='symbol')
             elif kind == 'rect':
                 self.create_rectangle(x1, y1, x2, y2, outline=colour, tags='symbol')
 
+    def draw_component(self, component: Component) -> None:
+        self._draw_symbol(component)
+        self._draw_terminals(component)
+        self._draw_label(component)
+
+    def _draw_symbol(self, component: Component) -> None:
+        self.draw_shapes(component.symbol_shapes(), component.position)
+
+    def _draw_terminals(self, component: Component) -> None:
+        for _, point in component.get_terminal_positions().items():
+            x, y = self.grid_to_pixel(point.col, point.row)
+            r = 3
+            self.create_oval(x - r, y - r, x + r, y + r, fill=SYMBOL_COLOUR, tags=('symbol', 'terminal'))
+
+    def _draw_label(self, component: Component) -> None:
+        x, y = self.grid_to_pixel(component.position.col, component.position.row - 0.8)
+        self.create_text(x, y, text=component.label.text, tags='symbol')
+
+
     def redraw(self) -> None:
         self.clear()
         for component in self.circuit.components.values():
-            self.draw_shapes(SHAPES[component.kind], component.position)
+            self.draw_component(component)
         self.tag_raise('readout')
 
     def on_motion(self, event: tk.Event) -> None:
@@ -108,11 +110,10 @@ class CircuitCanvas(tk.Canvas):
         self.itemconfig(self.readout_text, text=f"col:{col}, row:{row}")
 
     def on_click(self, event: tk.Event) -> None:
+        if self.armed_kind == '':
+            return
         col, row = self.pixel_to_grid(event.x, event.y)
-        self.circuit.add_component('resistor', GridPoint(col, row))
-        print(self.circuit.components)
-        if self.circuit.counter['resistor'] == 5:
-            self.circuit.remove_component('R2')
+        self.circuit.add_component(self.armed_kind, GridPoint(col, row))
         self.redraw()
 
     def clear(self) -> None:
@@ -125,6 +126,4 @@ if __name__ == "__main__":
 
     canvas = CircuitCanvas(root)
     canvas.pack(pady=10)
-    canvas.draw_shapes(RESISTOR_SHAPES, 5, 5)
-    canvas.draw_shapes(CAPACITOR_SHAPES, 10, 10)
     root.mainloop()
