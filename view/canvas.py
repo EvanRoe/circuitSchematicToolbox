@@ -1,3 +1,9 @@
+"""
+@file canvas.py
+@brief Creates the canvas for the circuit.
+@author Evan Roe
+@date 2026-10-03
+"""
 import tkinter as tk
 
 from model.circuit import Circuit
@@ -13,7 +19,9 @@ BACKGROUND_COLOUR = '#ffffff'
 
 
 class CircuitCanvas(tk.Canvas):
+    """Represents the tkinter canvas that the circuit sits on."""
     def __init__(self, parent: tk.Tk, circuit: Circuit, width: int=800, height: int=600, cell_px: int=CELL_PX) -> None:
+        """Constructs a CircuitCanvas on its parent, which includes the circuit."""
         super().__init__(parent, width=width, height=height, bg=BACKGROUND_COLOUR)
         self.width = width
         self.height = height
@@ -25,16 +33,19 @@ class CircuitCanvas(tk.Canvas):
 
 
     def grid_to_pixel(self, col: float, row: float) -> tuple[int, int]:
+        """Returns the pixel location given the grid location."""
         x = col * self.cell_px +  MARGIN_PX
         y = row * self.cell_px + MARGIN_PX
         return (x, y)
 
     def pixel_to_grid(self, x: int, y: int) -> tuple[int, int]:
+        """Returns the grid location given the pixel location."""
         col = round((x - MARGIN_PX) / self.cell_px)
         row = round((y - MARGIN_PX) / self.cell_px)
         return (col, row)
 
     def _build_readout(self) -> None:
+        """Builds the mouse location readout in the bottom right of the canvas."""
         rows = (self.height - 2 * MARGIN_PX) // self.cell_px
         x1, y1 = self.grid_to_pixel(0, rows - 1)
         x2, y2 = self.grid_to_pixel(4, rows)
@@ -53,6 +64,7 @@ class CircuitCanvas(tk.Canvas):
         )
 
     def _draw_grid(self) -> None:
+        """Draws the grid on the canvas."""
         cols = (self.width - 2 * MARGIN_PX) // self.cell_px
         rows = (self.height - 2 * MARGIN_PX) // self.cell_px
 
@@ -66,6 +78,7 @@ class CircuitCanvas(tk.Canvas):
             self.create_line(x1, y1, x2, y2, fill=GRID_COLOUR, tags='grid')
 
     def draw_shapes(self, shapes: list[tuple], position: GridPoint, colour: str=SYMBOL_COLOUR) -> None:
+        """Draws the shapes given as a list of tuples and the position."""
         for kind, sx1, sy1, sx2, sy2 in shapes:
             x1, y1 = self.grid_to_pixel(position.col + sx1, position.row + sy1)
             x2, y2 = self.grid_to_pixel(position.col + sx2, position.row + sy2)
@@ -76,25 +89,30 @@ class CircuitCanvas(tk.Canvas):
                 self.create_rectangle(x1, y1, x2, y2, outline=colour, tags='symbol')
 
     def draw_component(self, component: Component) -> None:
+        """Calls the different draw methods to draw the given component."""
         self._draw_symbol(component)
         self._draw_terminals(component)
         self._draw_label(component)
 
     def _draw_symbol(self, component: Component) -> None:
+        """Calls the draw_shapes() method using the given component."""
         self.draw_shapes(component.symbol_shapes(), component.position)
 
     def _draw_terminals(self, component: Component) -> None:
+        """Draws the terminals of the given component."""
         for _, point in component.get_terminal_positions().items():
             x, y = self.grid_to_pixel(point.col, point.row)
             r = 3
             self.create_oval(x - r, y - r, x + r, y + r, fill=SYMBOL_COLOUR, tags=('symbol', 'terminal'))
 
     def _draw_label(self, component: Component) -> None:
+        """Depicts the label of the given component."""
         x, y = self.grid_to_pixel(component.position.col, component.position.row - 0.8)
         self.create_text(x, y, text=component.label.text, tags='symbol')
 
 
     def redraw(self) -> None:
+        """Redraws the circuit after a change."""
         self.clear()
         for component in self.circuit.components.values():
             self.draw_component(component)
@@ -102,6 +120,7 @@ class CircuitCanvas(tk.Canvas):
 
 
     def clear(self) -> None:
+        """Clears the components off the canvas."""
         self.delete('symbol')
 
 

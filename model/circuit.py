@@ -1,14 +1,23 @@
+"""
+@file circuit.py
+@brief Defines the circuit class.
+@author Evan Roe
+@date 2026-10-03
+"""
 from model.component import Component, COMPONENT_REGISTRY
 from model.node import Node
 from model.attributes import GridPoint, Label
 
 class Circuit():
+    """Represents the collection of components."""
     def __init__(self, components: dict[str, Component]=None, nodes: dict[str, Node]=None) -> None:
+        """Construct a Circuit, usually empty to start but can add components and nodes."""
         self.components = components if components is not None else {}
         self.nodes = nodes if nodes is not None else {}
         self.counter = {}
 
     def add_component(self, kind: str, position: GridPoint) -> Component:
+        """Returns the component added using its kind and position, adds it to the counter dict."""
         self.counter[kind] = self.counter.get(kind, 0) + 1
 
         prefix = COMPONENT_REGISTRY[kind].prefix
@@ -21,10 +30,12 @@ class Circuit():
         return new_component
 
     def remove_component(self, gone_id: int) -> None:
+        """Removes the component from the class dict from its id."""
         del self.components[gone_id]
         
 
     def insert_component(self, component: Component) -> None:
+        """Inserts a component using its id instead of creating a new one."""
         self.components[component.id] = component
 
     def add_node(self, new_node: Node) -> None:
@@ -34,6 +45,7 @@ class Circuit():
         pass
 
     def component_at(self, point: GridPoint) -> Component | None:
+        """Returns the component if at the GridPoint position, otherwise None."""
         for component in self.components.values():
             points = component.get_terminal_positions().values()
             cols = [p.col for p in points]
@@ -43,6 +55,7 @@ class Circuit():
         return None
 
     def terminal_at(self, point: GridPoint) -> tuple[Component, str] | None:
+        """Returns the terminal if at the GridPoint position, otherwise None."""
         for component in self.components.values():
             for name, terminal in component.get_terminal_positions().items():
                 if point == terminal:

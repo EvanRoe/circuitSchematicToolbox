@@ -1,9 +1,17 @@
+"""
+@file component.py
+@brief Defines the component class.
+@author Evan Roe
+@date 2026-10-03
+"""
 from abc import ABC, abstractmethod
 
 from model.attributes import Label, GridPoint, Orientation, Terminal
 
 class Component(ABC):
+    """The base class for all components."""
     def __init__(self, id: int, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
+        """Constructs a Component with its id, label, position, and orientation."""
         self.id = id
         self.label = label
         self.position = position
@@ -11,6 +19,7 @@ class Component(ABC):
         self.terminals: list[Terminal]
 
     def get_terminal_positions(self) -> dict[str, GridPoint]:
+        """Returns the terminal positions of this component."""
         terminal_positions = {}
         comp_x = self.position.col
         comp_y = self.position.row
@@ -31,17 +40,20 @@ class Component(ABC):
 
 
 class Resistor(Component):
+    """Represents an electrical resistor."""
     kind = 'resistor'
     prefix = 'R'
     default_unit = 'Ω'
     display_name = 'Resistor'
 
     def __init__(self, id, label, position, orientation = Orientation.DEGREE_0):
+        """Constructs a Resistor using its id, label, position, and orientation."""
         super().__init__(id, label, position, orientation)
         self.terminals = [Terminal("left", -2, 0), Terminal("right", 2, 0)]
 
 
     def symbol_shapes(self):
+        """Holds the component shapes to draw it."""
         resistor_shapes = [
             ('line', -2.0, 0.0, -1.0, 0.0),
             ('rect', -1.0, -0.4, 1.0, 0.4),
@@ -54,17 +66,20 @@ class Resistor(Component):
         return entry
 
 class Capacitor(Component):
+    """Represents an electrical capacitor."""
     kind = 'capacitor'
     prefix = 'C'
     default_unit = 'F'
     display_name = 'Capacitor'
 
     def __init__(self, id, label, position, orientation = Orientation.DEGREE_0):
+        """Constructs a Capacitor using its id, label, position, and orientation."""
         super().__init__(id, label, position, orientation)
         self.terminals = [Terminal("pos", -1, 0), Terminal("neg", 1, 0)]
 
 
     def symbol_shapes(self):
+        """Holds the component shapes to draw it."""
         capacitor_shapes = [
             ('line', -1.0, 0.0, -0.2, 0.0),
             ('line', -0.2, -0.5, -0.2, 0.5),
