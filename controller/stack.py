@@ -9,6 +9,7 @@ class CommandStack:
     def can_undo(self) -> bool:
         return bool(self._done)
 
+    @property
     def can_redo(self) -> bool:
         return bool(self._undone)
     
@@ -18,7 +19,7 @@ class CommandStack:
         self._undone.clear()
 
     def undo(self) -> None:
-        if self.can_redo:
+        if self.can_undo:
             command = self._done.pop()
             command.undo()
             self._undone.append(command)

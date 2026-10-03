@@ -22,6 +22,7 @@ class Circuit():
 
     def remove_component(self, gone_id: int) -> None:
         del self.components[gone_id]
+        
 
     def insert_component(self, component: Component) -> None:
         self.components[component.id] = component
