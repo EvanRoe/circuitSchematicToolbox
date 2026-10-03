@@ -4,6 +4,8 @@ from tkinter import ttk
 from view.canvas import CircuitCanvas
 from model.circuit import Circuit
 from view.palette import ComponentPalette
+from controller.interactions import InteractionController
+from controller.stack import CommandStack
 
 SIDE_PANEL_WIDTH = 220
 
@@ -26,6 +28,12 @@ class MainWindow:
         self._build_top_bar()
         self._build_side_frame()
         self._build_canvas()
+
+        self.stack = CommandStack()
+        self.controller = InteractionController(self.circuit, self.stack, self.canvas)
+        root.bind_all('<Control-z>', self.on_undo)
+        root.bind_all('<Control-y>', self.on_redo)
+
 
         self.show_panel('file')
 
@@ -63,8 +71,7 @@ class MainWindow:
             
 
     def _build_canvas(self) -> None:
-        new_circuit = Circuit()
-        self.canvas = CircuitCanvas(self.root, new_circuit)
+        self.canvas = CircuitCanvas(self.root, self.circuit)
         self.canvas.pack(side='left', expand=True, fill='both')
 
     def show_panel(self, key: str) -> None:
@@ -74,7 +81,15 @@ class MainWindow:
         self.current_panel = self.panels[key]
 
     def on_component_picked(self, kind: str) -> None:
-        self.canvas.armed_kind = kind
+        self.controller.armed_kind = kind
+
+    def on_undo(self, event=None) -> None:
+        self.stack.undo()
+        self.canvas.redraw()
+
+    def on_redo(self, event=None) -> None:
+        self.stack.redo()
+        self.canvas.redraw()
 
 class PlaceholderPanel(ttk.Frame):
     def __init__(self, parent: tk.Misc, text: str="") ->  None:

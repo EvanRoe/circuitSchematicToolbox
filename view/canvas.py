@@ -19,15 +19,10 @@ class CircuitCanvas(tk.Canvas):
         self.height = height
         self.cell_px = cell_px
         self.circuit = circuit
-        self.armed_kind = ''
-        
-        self.bind('<Motion>', self.on_motion)
-        self.bind('<Button-1>', self.on_click)
 
         self._draw_grid()
         self._build_readout()
 
-        
 
     def grid_to_pixel(self, col: float, row: float) -> tuple[int, int]:
         x = col * self.cell_px +  MARGIN_PX
@@ -105,16 +100,6 @@ class CircuitCanvas(tk.Canvas):
             self.draw_component(component)
         self.tag_raise('readout')
 
-    def on_motion(self, event: tk.Event) -> None:
-        col, row = self.pixel_to_grid(event.x, event.y)
-        self.itemconfig(self.readout_text, text=f"col:{col}, row:{row}")
-
-    def on_click(self, event: tk.Event) -> None:
-        if self.armed_kind == '':
-            return
-        col, row = self.pixel_to_grid(event.x, event.y)
-        self.circuit.add_component(self.armed_kind, GridPoint(col, row))
-        self.redraw()
 
     def clear(self) -> None:
         self.delete('symbol')
