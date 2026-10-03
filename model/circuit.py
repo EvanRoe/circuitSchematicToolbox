@@ -8,7 +8,7 @@ class Circuit():
         self.nodes = nodes if nodes is not None else {}
         self.counter = {}
 
-    def add_component(self, kind: str, position: GridPoint) -> None:
+    def add_component(self, kind: str, position: GridPoint) -> Component:
         self.counter[kind] = self.counter.get(kind, 0) + 1
 
         prefix = COMPONENT_REGISTRY[kind].prefix
@@ -18,10 +18,13 @@ class Circuit():
         
         new_component = COMPONENT_REGISTRY[kind](name, new_label, position)
         self.components[name] = new_component
+        return new_component
 
     def remove_component(self, gone_id: int) -> None:
         del self.components[gone_id]
-        
+
+    def insert_component(self, component: Component) -> None:
+        self.components[component.id] = component
 
     def add_node(self, new_node: Node) -> None:
         self.nodes.append(new_node)
