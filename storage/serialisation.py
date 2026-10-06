@@ -26,14 +26,20 @@ def circuit_from_dict(data: dict, circuit: Circuit) -> None:
     version = data.get('format_version')
     if version != FORMAT_VERSION:
         raise ValueError(f"Unsupported file format version: {version}")
-    circuit.components.clear()
-    circuit.counter.clear()
-
+    
+    components = {}
     for entry in data['components']:
         component = Component.from_dict(entry)
-        circuit.components[component.id] = component
+        if component.id in components:
+            raise ValueError(f"Duplicate component id {component.id!r} in file")
+        components[component.id] = component
 
-    circuit.counter.update(data['counter'])
+    counter = {str(kind): int(count) for kind, count in data['counter'].items()}
+
+    circuit.clear()
+    for component in components.values():
+        circuit.insert_component(component)
+    circuit.counter.update(counter)
     
 
 def save_json(circuit: Circuit, path: Path) -> None:

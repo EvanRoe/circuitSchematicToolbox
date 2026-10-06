@@ -16,6 +16,7 @@ class Component(ABC):
     display_name: str
     prefix: str
     default_unit: str
+    default_value: int = 0
 
     def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
         """Constructs a Component with its id, label, position, and orientation."""

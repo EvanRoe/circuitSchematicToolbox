@@ -42,3 +42,7 @@ class CommandStack:
             command = self._undone.pop()
             command.execute()
             self._done.append(command)
+
+    def clear(self) -> None:
+        self._done.clear()
+        self._undone.clear()

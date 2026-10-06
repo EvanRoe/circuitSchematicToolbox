@@ -43,10 +43,10 @@ class Terminal():
 @dataclass
 class Label():
     """Component label with its text and value."""
+    value: float
+    unit: str
     text: str = ''
-    value: float = 0.0
-    unit: str = ''
-
+    
     def display(self) -> str:
         """Concatenates the value and unit into one variable."""
         full_value = f"{self.value}{self.unit}"

@@ -40,7 +40,9 @@ class MainWindow:
         self.stack = CommandStack()
         self.controller = InteractionController(self.circuit, self.stack, self.canvas)
         root.bind_all('<Control-z>', self.on_undo)
+        root.bind_all('<Control-Z>', self.on_undo)
         root.bind_all('<Control-y>', self.on_redo)
+        root.bind_all('<Control-Y>', self.on_redo)
 
 
         self.show_panel('file')
