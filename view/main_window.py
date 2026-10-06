@@ -9,7 +9,7 @@ from tkinter import ttk
 
 from view.canvas import CircuitCanvas
 from model.circuit import Circuit
-from view.palette import ComponentPalette
+from view.panels import ComponentPalette
 from controller.interactions import InteractionController
 from controller.stack import CommandStack
 

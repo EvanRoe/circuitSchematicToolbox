@@ -29,9 +29,11 @@ class Circuit():
         self.components[name] = new_component
         return new_component
 
-    def remove_component(self, gone_id: str) -> None:
+    def remove_component(self, component_id: str) -> None:
         """Removes the component from the class dict from its id."""
-        del self.components[gone_id]
+        if component_id not in self.components:
+            raise KeyError(f"Component {component_id} does not exist")
+        del self.components[component_id]
         
 
     def insert_component(self, component: Component) -> None:

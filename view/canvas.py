@@ -32,13 +32,13 @@ class CircuitCanvas(tk.Canvas):
         self._build_readout()
 
 
-    def grid_to_pixel(self, col: float, row: float) -> tuple[int, int]:
+    def grid_to_pixel(self, col: float, row: float) -> tuple[float, float]:
         """Returns the pixel location given the grid location."""
         x = col * self.cell_px +  MARGIN_PX
         y = row * self.cell_px + MARGIN_PX
         return (x, y)
 
-    def pixel_to_grid(self, x: int, y: int) -> tuple[int, int]:
+    def pixel_to_grid(self, x: float, y: float) -> tuple[int, int]:
         """Returns the grid location given the pixel location."""
         col = round((x - MARGIN_PX) / self.cell_px)
         row = round((y - MARGIN_PX) / self.cell_px)
@@ -125,9 +125,4 @@ class CircuitCanvas(tk.Canvas):
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Circuit Schematic Toolbox")
-
-    canvas = CircuitCanvas(root)
-    canvas.pack(pady=10)
-    root.mainloop()
+    pass
