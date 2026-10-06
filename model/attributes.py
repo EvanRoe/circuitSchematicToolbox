@@ -4,22 +4,34 @@
 @author Evan Roe
 @date 2026-10-03
 """
+from __future__ import annotations
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import IntEnum
 
 
-class Orientation(Enum):
+class Orientation(IntEnum):
     """Possible component orientations."""
-    DEGREE_0 = auto()
-    DEGREE_90 = auto()
-    DEGREE_180 = auto()
-    DEGREE_270 = auto()
+    DEGREE_0 = 0
+    DEGREE_90 = 90
+    DEGREE_180 = 180
+    DEGREE_270 = 270
 
-@dataclass
+
+@dataclass(frozen=True)
 class GridPoint():
     """Canvas grid column and row."""
-    col: int
+    col: int 
     row: int
+
+    def to_dict(self) -> dict:
+        """Converts a GridPoint to a dict for circuit saving and loading."""
+        return {'col': self.col, 'row': self.row}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> GridPoint:
+        """Returns a GridPoint from the saved dict."""
+        return cls(col=data['col'], row=data['row'])
+
 
 @dataclass
 class Terminal():
@@ -39,4 +51,13 @@ class Label():
         """Concatenates the value and unit into one variable."""
         full_value = f"{self.value}{self.unit}"
         return full_value
+
+    def to_dict(self) -> dict:
+        """Converts a Label to a dict for circuit saving and loading."""
+        return {'text': self.text, 'value': self.value, 'unit': self.unit}
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Label:
+        """Returns a Label from the saved dict."""
+        return cls(text=data['text'], value=data['value'], unit=data['unit'])
 

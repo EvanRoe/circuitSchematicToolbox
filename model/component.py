@@ -4,6 +4,8 @@
 @author Evan Roe
 @date 2026-10-03
 """
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
 from model.attributes import Label, GridPoint, Orientation, Terminal
@@ -29,6 +31,29 @@ class Component(ABC):
             terminal_positions[term.name] = positions
         return terminal_positions
 
+    def to_dict(self) -> dict:
+        """Converts the Component into a dict for saving and loading."""
+        data = {
+            'id': self.id,
+            'kind': self.kind,
+            'position': self.position.to_dict(),
+            'orientation': self.orientation,
+            'label': self.label.to_dict(),
+        }
+        return data
+
+    @staticmethod
+    def from_dict(data: dict) -> Component:
+        """Returns the specific Component from the saved dict."""
+        cls = COMPONENT_REGISTRY[data['kind']]
+        return cls(
+            id=data['id'],
+            label=Label.from_dict([data['label']]),
+            position=GridPoint.from_dict(data['position']),
+            orientation=Orientation(data['orientation']),
+            )
+        
+
     @abstractmethod
     def symbol_shapes(self) -> list[tuple]:
         ...
@@ -50,7 +75,6 @@ class Resistor(Component):
         """Constructs a Resistor using its id, label, position, and orientation."""
         super().__init__(id, label, position, orientation)
         self.terminals = [Terminal("left", -2, 0), Terminal("right", 2, 0)]
-
 
     def symbol_shapes(self):
         """Holds the component shapes to draw it."""
@@ -76,7 +100,6 @@ class Capacitor(Component):
         """Constructs a Capacitor using its id, label, position, and orientation."""
         super().__init__(id, label, position, orientation)
         self.terminals = [Terminal("pos", -1, 0), Terminal("neg", 1, 0)]
-
 
     def symbol_shapes(self):
         """Holds the component shapes to draw it."""
