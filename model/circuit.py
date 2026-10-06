@@ -10,7 +10,7 @@ from model.attributes import GridPoint, Label
 
 class Circuit():
     """Represents the collection of components."""
-    def __init__(self, components: dict[str, Component]=None, nodes: dict[str, Node]=None) -> None:
+    def __init__(self, components: dict[str, Component] | None = None, nodes: dict[str, Node] | None = None) -> None:
         """Construct a Circuit, usually empty to start but can add components and nodes."""
         self.components = components if components is not None else {}
         self.nodes = nodes if nodes is not None else {}
@@ -29,17 +29,19 @@ class Circuit():
         self.components[name] = new_component
         return new_component
 
-    def remove_component(self, gone_id: int) -> None:
+    def remove_component(self, gone_id: str) -> None:
         """Removes the component from the class dict from its id."""
         del self.components[gone_id]
         
 
     def insert_component(self, component: Component) -> None:
         """Inserts a component using its id instead of creating a new one."""
+        if component.id in self.components:
+            raise KeyError(f"Component {component.id} already exists")
         self.components[component.id] = component
 
-    def add_node(self, new_node: Node) -> None:
-        self.nodes.append(new_node)
+    #def add_node(self, new_node: Node) -> None:
+    #    self.nodes.append(new_node)
 
     def connect_terminal(self) -> None:
         pass
@@ -65,10 +67,7 @@ class Circuit():
 
 
     def to_netlist(self) -> str:
-        netlist = ""
-        for component in self.components:
-            netlist = netlist + component.to_netlist_entry() + "\n"
-        return netlist
+        return '\n'.join(c.to_netlist_entry() for c in self.components.values())
 
 
 if __name__ == "__main__":

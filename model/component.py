@@ -12,7 +12,12 @@ from model.attributes import Label, GridPoint, Orientation, Terminal
 
 class Component(ABC):
     """The base class for all components."""
-    def __init__(self, id: int, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
+    kind: str
+    display_name: str
+    prefix: str
+    default_unit: str
+
+    def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
         """Constructs a Component with its id, label, position, and orientation."""
         self.id = id
         self.label = label
@@ -48,7 +53,7 @@ class Component(ABC):
         cls = COMPONENT_REGISTRY[data['kind']]
         return cls(
             id=data['id'],
-            label=Label.from_dict([data['label']]),
+            label=Label.from_dict(data['label']),
             position=GridPoint.from_dict(data['position']),
             orientation=Orientation(data['orientation']),
             )
@@ -67,9 +72,9 @@ class Component(ABC):
 class Resistor(Component):
     """Represents an electrical resistor."""
     kind = 'resistor'
+    display_name = 'Resistor'
     prefix = 'R'
     default_unit = 'Ω'
-    display_name = 'Resistor'
 
     def __init__(self, id, label, position, orientation = Orientation.DEGREE_0):
         """Constructs a Resistor using its id, label, position, and orientation."""
@@ -92,9 +97,9 @@ class Resistor(Component):
 class Capacitor(Component):
     """Represents an electrical capacitor."""
     kind = 'capacitor'
+    display_name = 'Capacitor'
     prefix = 'C'
     default_unit = 'F'
-    display_name = 'Capacitor'
 
     def __init__(self, id, label, position, orientation = Orientation.DEGREE_0):
         """Constructs a Capacitor using its id, label, position, and orientation."""
