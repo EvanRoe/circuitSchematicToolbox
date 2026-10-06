@@ -5,13 +5,15 @@
 @date 2026-10-03
 """
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog, messagebox
+from pathlib import Path
 
 from view.canvas import CircuitCanvas
 from model.circuit import Circuit
-from view.panels import ComponentPalette
+from view.panels import FilePanel, ComponentPanel
 from controller.interactions import InteractionController
 from controller.stack import CommandStack
+from storage.serialisation import load_json, save_json
 
 SIDE_PANEL_WIDTH = 220
 
@@ -19,6 +21,11 @@ TABS = [
     ('file', 'File'),
     ('components', 'Components'),
     ('favourites', 'Favourites'),
+]
+
+FILE_TYPES = [
+    ('Circuit files', '*.json'),
+    ('All files', '*.*'),
 ]
 
 
@@ -68,11 +75,11 @@ class MainWindow:
         self.side_frame.pack(side='right', fill='y')
         self.side_frame.pack_propagate(False)
 
-        self.panels['file'] = PlaceholderPanel(
+        self.panels['file'] = FilePanel(
             self.side_frame,
-            TABS[0][1],
+            on_pick=self.on_file_action,
         )
-        self.panels['components'] = ComponentPalette(
+        self.panels['components'] = ComponentPanel(
             self.side_frame,
             on_pick=self.on_component_picked
         )
@@ -107,6 +114,48 @@ class MainWindow:
         """Runs the redo command through the stack and redraws."""
         self.stack.redo()
         self.canvas.redraw()
+
+    def on_file_action(self, action: str) -> None:
+        """Executes the action chosen by the user from the file tab."""
+        file_actions = {
+            'new': self._new,
+            'open': self._open,
+            'save': self._save,
+        }
+        handler = file_actions[action]
+        handler()
+
+    def _new(self) -> None:
+        """Starts a blank circuit."""
+        self.circuit.clear()
+        self._reset_editor()
+
+    def _open(self) -> None:
+        """Opens a saved schematic file."""
+        path = filedialog.askopenfilename(filetypes=FILE_TYPES)
+        if not path: return
+        try:
+            load_json(Path(path), self.circuit)
+        except (OSError, ValueError, KeyError) as e:
+            messagebox.showerror("Could not open file", str(e))
+            return
+        self._reset_editor()
+
+    def _save(self) -> None:
+        """Saves the current schematic file to disk."""
+        path = filedialog.asksaveasfilename(defaultextension='.json', filetypes=FILE_TYPES)
+        if not path: return
+        try:
+            save_json(self.circuit, Path(path))
+        except OSError as e:
+            messagebox.showerror("Could not save file", str(e))
+
+    def _reset_editor(self) -> None:
+        """Called after a circuit clear to reset main editor attributes."""
+        self.stack.clear()
+        self.canvas.redraw()
+        self.controller.armed_kind = ''
+
 
 class PlaceholderPanel(ttk.Frame):
     def __init__(self, parent: tk.Misc, text: str="") ->  None:
