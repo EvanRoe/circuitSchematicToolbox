@@ -17,7 +17,7 @@ class Orientation(IntEnum):
     DEGREE_270 = 270
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class GridPoint():
     """Canvas grid column and row."""
     col: int 

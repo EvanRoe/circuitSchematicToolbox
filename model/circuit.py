@@ -5,15 +5,15 @@
 @date 2026-10-03
 """
 from model.component import Component, COMPONENT_REGISTRY
-from model.node import Node
+from model.wire import WireSegment
 from model.attributes import GridPoint, Label
 
 class Circuit():
     """Represents the collection of components."""
-    def __init__(self, components: dict[str, Component] | None = None, nodes: dict[str, Node] | None = None) -> None:
+    def __init__(self, components: dict[str, Component] | None = None, wires: dict[str, WireSegment] | None = None) -> None:
         """Construct a Circuit, usually empty to start but can add components and nodes."""
         self.components = components if components is not None else {}
-        self.nodes = nodes if nodes is not None else {}
+        self.wires = wires if wires is not None else {}
         self.counter = {}
 
     def add_component(self, kind: str, position: GridPoint) -> Component:
@@ -42,6 +42,28 @@ class Circuit():
         if component.id in self.components:
             raise KeyError(f"Component {component.id} already exists")
         self.components[component.id] = component
+
+    def add_wire(self, a: GridPoint, b: GridPoint) -> WireSegment:
+        """Creates a wire between points a and b and returns it."""
+        first, second = min(a, b), max(a, b)
+        count = self.counter.get(WireSegment.kind, 0) + 1
+        new_wire = WireSegment(f'{WireSegment.prefix}{count}', first, second)
+        self.wires[f'{WireSegment.prefix}{count}'] = new_wire
+        self.counter[WireSegment.kind] = count
+        return new_wire
+
+    def remove_wire(self, wire_id: str) -> None:
+        """Removes the wire from the circuit."""
+        if wire_id not in self.wires:
+            raise KeyError(f'WireSegment {wire_id} does not exist')
+        del self.wires[wire_id]
+
+    def insert_wire(self, wire: WireSegment) -> None:
+        """Insert a wire using its id instead of creating a new one."""
+        if wire.id not in self.wires:
+            raise KeyError(f'WireSegment {wire.id} already exists')
+        self.wires[wire.id] = wire
+        
 
     def component_at(self, point: GridPoint) -> Component | None:
         """Returns the component if at the GridPoint position, otherwise None."""
