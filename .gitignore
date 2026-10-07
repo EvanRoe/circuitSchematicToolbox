@@ -1,5 +1,4 @@
 docs/
-Doxyfile
 __pycache__/
 *.aux
 *.log
