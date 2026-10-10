@@ -53,3 +53,16 @@ def test_add_wire_command_undo_redo():
     assert not circuit.wires
     stack.redo()
     assert circuit.wires['W1'] is wire
+
+def test_remove_wire_command_undo_redo():
+    circuit = Circuit()
+    _ = circuit.add_wire(GridPoint(3, 5), GridPoint(3, 9))
+    stack = CommandStack()
+    command = RemoveWireCommand(circuit, 'W1')
+    stack.execute(command)
+    wire = command.wire                     
+    assert not circuit.wires
+    stack.undo()
+    assert circuit.wires['W1'] is wire
+    stack.redo()
+    assert not circuit.wires
