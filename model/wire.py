@@ -36,16 +36,16 @@ class WireSegment():
     def contains(self, point: GridPoint) -> bool:
         """True if the point lies on the segment, endpoints included."""
         if self.is_horizontal:
-            return self.start.row == point.row and (self.start.col < point.col < self.end.col)
+            return self.start.row == point.row and (self.start.col <= point.col <= self.end.col)
         else:
-            return self.start.col == point.col and (self.start.row < point.row < self.end.row)
+            return self.start.col == point.col and (self.start.row <= point.row <= self.end.row)
 
     def to_dict(self) -> dict:
         """Converts the WireSegment into a dict for circuit saving."""
         wire_dict = {
             'id': self.id,
-            'start': self.start.to_dict,
-            'end': self.end.to_dict,
+            'start': self.start.to_dict(),
+            'end': self.end.to_dict(),
         }
         return wire_dict
 

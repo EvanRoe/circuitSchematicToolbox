@@ -60,7 +60,7 @@ class Circuit():
 
     def insert_wire(self, wire: WireSegment) -> None:
         """Insert a wire using its id instead of creating a new one."""
-        if wire.id not in self.wires:
+        if wire.id in self.wires:
             raise KeyError(f'WireSegment {wire.id} already exists')
         self.wires[wire.id] = wire
         
