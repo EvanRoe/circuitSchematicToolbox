@@ -1,3 +1,9 @@
+"""
+@file test_wires.py
+@brief Test file for the wires model.
+@author Evan Roe
+@date 2026-10-10
+"""
 import pytest
 
 from model.circuit import Circuit
