@@ -33,7 +33,7 @@ class Component(ABC):
         comp_y = self.position.row
 
         for term in self.terminals:
-            positions = GridPoint(comp_x + term.col_offset, comp_y + term.row_offset)
+            positions = GridPoint(row=comp_y + term.row_offset, col=comp_x + term.col_offset)
             terminal_positions[term.name] = positions
         return terminal_positions
 
@@ -80,7 +80,7 @@ class Resistor(Component):
     def __init__(self, id, label, position, orientation = Orientation.DEGREE_0):
         """Constructs a Resistor using its id, label, position, and orientation."""
         super().__init__(id, label, position, orientation)
-        self.terminals = [Terminal("left", -2, 0), Terminal("right", 2, 0)]
+        self.terminals = [Terminal(name="left", row_offset=0, col_offset=-2), Terminal(name="right", row_offset=0, col_offset=2)]
 
     def symbol_shapes(self):
         """Holds the component shapes to draw it."""
@@ -105,7 +105,7 @@ class Capacitor(Component):
     def __init__(self, id, label, position, orientation = Orientation.DEGREE_0):
         """Constructs a Capacitor using its id, label, position, and orientation."""
         super().__init__(id, label, position, orientation)
-        self.terminals = [Terminal("pos", -1, 0), Terminal("neg", 1, 0)]
+        self.terminals = [Terminal(name="pos", row_offset=0, col_offset=-1), Terminal(name="neg", row_offset=0, col_offset=1)]
 
     def symbol_shapes(self):
         """Holds the component shapes to draw it."""
@@ -118,8 +118,8 @@ class Capacitor(Component):
         return capacitor_shapes
 
     def to_netlist_entry(self):
-            entry = f"C{self.id} {self.label.value}{self.label.unit}"
-            return entry
+        entry = f"C{self.id} {self.label.value}{self.label.unit}"
+        return entry
 
 
 COMPONENT_REGISTRY = {

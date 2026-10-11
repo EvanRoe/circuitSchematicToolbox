@@ -11,7 +11,7 @@ from model.attributes import GridPoint, Label
 class Circuit():
     """Represents the collection of components."""
     def __init__(self, components: dict[str, Component] | None = None, wires: dict[str, WireSegment] | None = None) -> None:
-        """Construct a Circuit, usually empty to start but can add components and nodes."""
+        """Construct a Circuit, usually empty to start but can add components and wires."""
         self.components = components if components is not None else {}
         self.wires = wires if wires is not None else {}
         self.counter = {}
@@ -48,7 +48,7 @@ class Circuit():
         first, second = min(a, b), max(a, b)
         count = self.counter.get(WireSegment.kind, 0) + 1
         new_wire = WireSegment(f'{WireSegment.prefix}{count}', first, second)
-        self.wires[f'{WireSegment.prefix}{count}'] = new_wire
+        self.wires[new_wire.id] = new_wire
         self.counter[WireSegment.kind] = count
         return new_wire
 
@@ -84,7 +84,9 @@ class Circuit():
         return None
 
     def clear(self) -> None:
+        """Clears the circuit of components, wires, and resets the counter."""
         self.components.clear()
+        self.wires.clear()
         self.counter.clear()
 
 

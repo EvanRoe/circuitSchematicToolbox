@@ -13,7 +13,7 @@ from controller.stack import CommandStack
 from controller.commands import AddWireCommand, RemoveWireCommand
 
 def setup_test() -> tuple[WireSegment, Circuit]:
-    wire = WireSegment('W1', GridPoint(3, 5), GridPoint(3, 9))
+    wire = WireSegment('W1', GridPoint(row=5, col=3), GridPoint(row=9, col=3))
     circuit = Circuit()
     return (wire, circuit)
 
@@ -27,21 +27,21 @@ def test_circuit_wires_dict():
 def test_diagonal_wire():
     _, circuit = setup_test()
     with pytest.raises(ValueError):
-        circuit.add_wire(GridPoint(3, 4), GridPoint(2, 5))
+        circuit.add_wire(GridPoint(row=4, col=3), GridPoint(row=5, col=2))
     assert circuit.counter.get('wire', 0) == 0
 
 def test_wire_ordered_ends():
     _, circuit = setup_test()
-    wire = circuit.add_wire(GridPoint(5, 3), GridPoint(2, 3))
-    assert wire.start == GridPoint(2, 3)
+    wire = circuit.add_wire(GridPoint(row=3, col=5), GridPoint(row=3, col=2))
+    assert wire.start == GridPoint(row=3, col=2)
 
 def test_contains_function():
     wire, _ = setup_test()
-    assert wire.contains(GridPoint(3, 5))
-    assert wire.contains(GridPoint(3, 9))
-    assert wire.contains(GridPoint(3, 6)) 
-    assert not wire.contains(GridPoint(3, 1)) 
-    assert not wire.contains(GridPoint(4, 6)) 
+    assert wire.contains(GridPoint(row=5, col=3))
+    assert wire.contains(GridPoint(row=9, col=3))
+    assert wire.contains(GridPoint(row=6, col=3)) 
+    assert not wire.contains(GridPoint(row=1, col=3)) 
+    assert not wire.contains(GridPoint(row=6, col=4)) 
 
 def test_wire_from_to_dict():
     wire, _ = setup_test()
@@ -51,7 +51,7 @@ def test_wire_from_to_dict():
 def test_add_wire_command_undo_redo():
     circuit = Circuit()
     stack = CommandStack()
-    command = AddWireCommand(circuit, GridPoint(3, 5), GridPoint(3, 9))
+    command = AddWireCommand(circuit, GridPoint(row=5, col=3), GridPoint(row=9, col=3))
     stack.execute(command)
     wire = command.wire                     
     assert circuit.wires['W1'] is wire
@@ -62,7 +62,7 @@ def test_add_wire_command_undo_redo():
 
 def test_remove_wire_command_undo_redo():
     circuit = Circuit()
-    _ = circuit.add_wire(GridPoint(3, 5), GridPoint(3, 9))
+    _ = circuit.add_wire(GridPoint(row=5, col=3), GridPoint(row=9, col=3))
     stack = CommandStack()
     command = RemoveWireCommand(circuit, 'W1')
     stack.execute(command)

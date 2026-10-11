@@ -31,6 +31,7 @@ class UnionFind:
 
     @property
     def points(self) -> set[GridPoint]:
+        """Returns the set of GridPoints added to the UnionFind."""
         return set(self._parent)
 
 

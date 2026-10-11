@@ -154,7 +154,7 @@ class MainWindow:
         """Called after a circuit clear to reset main editor attributes."""
         self.stack.clear()
         self.canvas.redraw()
-        self.controller.armed_kind = ''
+        self.controller.armed_kind = None
 
 
 class PlaceholderPanel(ttk.Frame):

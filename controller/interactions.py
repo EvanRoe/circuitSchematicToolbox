@@ -20,7 +20,7 @@ class InteractionController:
         self.stack = stack
         self.canvas = canvas
 
-        self.armed_kind = ''
+        self.armed_kind: str | None = None
 
         self.canvas.bind('<Motion>', self.on_motion)
         self.canvas.bind('<Button-1>', self.on_click)
@@ -29,21 +29,21 @@ class InteractionController:
 
     def on_motion(self, event: tk.Event) -> None:
         """On mouse motion, updates the location of the mouse in the canvas grid."""
-        col, row = self.canvas.pixel_to_grid(event.x, event.y)
-        self.canvas.itemconfig(self.canvas.readout_text, text=f"col:{col}, row:{row}")
+        point = self.canvas.pixel_to_grid(event.x, event.y)
+        self.canvas.itemconfig(self.canvas.readout_text, text=f"row:{point.row}, col:{point.col}")
 
     def on_click(self, event: tk.Event) -> None:
         """On left click, adds the chosen component to the canvas at that click location."""
-        if self.armed_kind == '':
+        if self.armed_kind == None:
             return
-        col, row = self.canvas.pixel_to_grid(event.x, event.y)
-        self.stack.execute(AddComponentCommand(self.circuit, self.armed_kind, GridPoint(col, row)))
+        point = self.canvas.pixel_to_grid(event.x, event.y)
+        self.stack.execute(AddComponentCommand(self.circuit, self.armed_kind, point))
         self.canvas.redraw()
 
     def on_right_click(self, event: tk.Event) -> None:
         """On right click, if there is a component there, opens a menu to interact with the component."""
-        col, row = self.canvas.pixel_to_grid(event.x, event.y)
-        component = self.circuit.component_at(GridPoint(col, row))
+        point = self.canvas.pixel_to_grid(event.x, event.y)
+        component = self.circuit.component_at(point)
         if component is not None:
             menu = tk.Menu(self.canvas, tearoff=0)
             menu.add_command(label='Remove', command= lambda: self.remove(component.id))

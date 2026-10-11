@@ -22,11 +22,11 @@ class WireSegment():
     def __post_init__(self) -> None:
         """Validation function to check correctness of wire initialisation."""
         if self.start == self.end:
-            raise ValueError(f"Start and end are the same point.")
+            raise ValueError("Start and end are the same point.")
         elif self.start > self.end:
-            raise ValueError(f"Start and end in wrong order.")
+            raise ValueError("Start and end in wrong order.")
         elif self.start.col != self.end.col and self.start.row != self.end.row:
-            raise ValueError(f"Would create a diagonal wire.")
+            raise ValueError("Would create a diagonal wire.")
 
     @property
     def is_horizontal(self) -> bool:
@@ -51,6 +51,7 @@ class WireSegment():
 
     @classmethod
     def from_dict(cls, data: dict) -> WireSegment:
+        """Creates a WireSegment from a dict holding its information."""
         start = GridPoint.from_dict(data['start'])
         end = GridPoint.from_dict(data['end'])
         new_wire = cls(id=data['id'], start=start, end=end)

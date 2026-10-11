@@ -32,23 +32,23 @@ class CircuitCanvas(tk.Canvas):
         self._build_readout()
 
 
-    def grid_to_pixel(self, col: float, row: float) -> tuple[float, float]:
+    def grid_to_pixel(self, row: float, col: float) -> tuple[float, float]:
         """Returns the pixel location given the grid location."""
         x = col * self.cell_px +  MARGIN_PX
         y = row * self.cell_px + MARGIN_PX
         return (x, y)
 
-    def pixel_to_grid(self, x: float, y: float) -> tuple[int, int]:
+    def pixel_to_grid(self, x: float, y: float) -> GridPoint:
         """Returns the grid location given the pixel location."""
-        col = round((x - MARGIN_PX) / self.cell_px)
         row = round((y - MARGIN_PX) / self.cell_px)
-        return (col, row)
+        col = round((x - MARGIN_PX) / self.cell_px)
+        return GridPoint(row=row, col=col)
 
     def _build_readout(self) -> None:
-        """Builds the mouse location readout in the bottom right of the canvas."""
+        """Builds the mouse location readout in the bottom left of the canvas."""
         rows = (self.height - 2 * MARGIN_PX) // self.cell_px
-        x1, y1 = self.grid_to_pixel(0, rows - 1)
-        x2, y2 = self.grid_to_pixel(4, rows)
+        x1, y1 = self.grid_to_pixel(rows - 1, 0)
+        x2, y2 = self.grid_to_pixel(rows, 4)
         self.create_rectangle(
             x1, y1, x2, y2,
             fill='#cce5ff',
@@ -65,23 +65,24 @@ class CircuitCanvas(tk.Canvas):
 
     def _draw_grid(self) -> None:
         """Draws the grid on the canvas."""
-        cols = (self.width - 2 * MARGIN_PX) // self.cell_px
         rows = (self.height - 2 * MARGIN_PX) // self.cell_px
+        cols = (self.width - 2 * MARGIN_PX) // self.cell_px
+        
 
         for c in range(cols + 1):
-            x1, y1 = self.grid_to_pixel(c, 0)
-            x2, y2 = self.grid_to_pixel(c, rows)
+            x1, y1 = self.grid_to_pixel(0, c)
+            x2, y2 = self.grid_to_pixel(rows, c)
             self.create_line(x1, y1, x2, y2, fill=GRID_COLOUR, tags='grid')
         for r in range(rows + 1):
-            x1, y1 = self.grid_to_pixel(0, r)
-            x2, y2 = self.grid_to_pixel(cols, r)
+            x1, y1 = self.grid_to_pixel(r, 0)
+            x2, y2 = self.grid_to_pixel(r, cols)
             self.create_line(x1, y1, x2, y2, fill=GRID_COLOUR, tags='grid')
 
     def draw_shapes(self, shapes: list[tuple], position: GridPoint, colour: str=SYMBOL_COLOUR) -> None:
         """Draws the shapes given as a list of tuples and the position."""
         for kind, sx1, sy1, sx2, sy2 in shapes:
-            x1, y1 = self.grid_to_pixel(position.col + sx1, position.row + sy1)
-            x2, y2 = self.grid_to_pixel(position.col + sx2, position.row + sy2)
+            x1, y1 = self.grid_to_pixel(position.row + sy1, position.col + sx1)
+            x2, y2 = self.grid_to_pixel(position.row + sy2, position.col + sx2)
 
             if kind == 'line':
                 self.create_line(x1, y1, x2, y2, fill=colour, tags='symbol')
@@ -101,13 +102,13 @@ class CircuitCanvas(tk.Canvas):
     def _draw_terminals(self, component: Component) -> None:
         """Draws the terminals of the given component."""
         for _, point in component.get_terminal_positions().items():
-            x, y = self.grid_to_pixel(point.col, point.row)
+            x, y = self.grid_to_pixel(point.row, point.col)
             r = 3
             self.create_oval(x - r, y - r, x + r, y + r, fill=SYMBOL_COLOUR, tags=('symbol', 'terminal'))
 
     def _draw_label(self, component: Component) -> None:
         """Depicts the label of the given component."""
-        x, y = self.grid_to_pixel(component.position.col, component.position.row - 0.8)
+        x, y = self.grid_to_pixel(component.position.row - 0.8, component.position.col)
         self.create_text(x, y, text=component.label.text, tags='symbol')
 
 

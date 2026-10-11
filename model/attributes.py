@@ -17,28 +17,28 @@ class Orientation(IntEnum):
     DEGREE_270 = 270
 
 
-@dataclass(frozen=True, order=True)
+@dataclass(frozen=True, order=True, kw_only=True)
 class GridPoint():
     """Canvas grid column and row."""
-    col: int 
-    row: int
+    row: int 
+    col: int
 
     def to_dict(self) -> dict:
         """Converts a GridPoint to a dict for circuit saving and loading."""
-        return {'col': self.col, 'row': self.row}
+        return {'row': self.row, 'col': self.col}
 
     @classmethod
     def from_dict(cls, data: dict) -> GridPoint:
         """Returns a GridPoint from the saved dict."""
-        return cls(col=data['col'], row=data['row'])
+        return cls(row=data['row'], col=data['col'])
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Terminal():
     """Component terminal with its offset from the component."""
     name: str
-    col_offset: int
     row_offset: int
+    col_offset: int
 
 @dataclass
 class Label():
