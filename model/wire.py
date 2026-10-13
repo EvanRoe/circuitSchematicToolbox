@@ -4,6 +4,7 @@
 @author Evan Roe
 @date 2026-10-07
 """
+
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import ClassVar
@@ -56,3 +57,21 @@ class WireSegment():
         end = GridPoint.from_dict(data['end'])
         new_wire = cls(id=data['id'], start=start, end=end)
         return new_wire
+
+
+def route_l(start: GridPoint, end: GridPoint, horizontal_first: bool) -> list[tuple[GridPoint, GridPoint]]:
+    """Returns point pairs for wire path (2 pairs for L-shaped wire)."""
+    if start == end:
+        return []
+    elif start.row == end.row or start.col == end.col:
+        return [(start, end)]
+    elif horizontal_first:
+        return [
+            (start, GridPoint(row=start.row, col=end.col)),
+            (GridPoint(row=start.row, col=end.col), end)
+            ]
+    else:
+        return [
+            (start, GridPoint(row=end.row, col=start.col)),
+            (GridPoint(row=end.row, col=start.col), end)
+            ]

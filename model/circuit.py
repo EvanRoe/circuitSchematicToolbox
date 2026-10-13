@@ -63,6 +63,13 @@ class Circuit():
         if wire.id in self.wires:
             raise KeyError(f'WireSegment {wire.id} already exists')
         self.wires[wire.id] = wire
+
+    def wire_through(self, point: GridPoint) -> WireSegment | None:
+        """Returns the wire that passes through GridPoint point, if any."""
+        for wire in self.wires.values():
+            if wire.contains(point) and point != wire.start and point != wire.end:
+                return wire
+        return None
         
 
     def component_at(self, point: GridPoint) -> Component | None:

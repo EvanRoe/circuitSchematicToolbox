@@ -7,10 +7,10 @@
 import pytest
 
 from model.circuit import Circuit
-from model.wire import WireSegment
+from model.wire import WireSegment, route_l
 from model.attributes import GridPoint
 from controller.stack import CommandStack
-from controller.commands import AddWireCommand, RemoveWireCommand
+from controller.commands import AddWireCommand, RemoveWireCommand, SplitWireCommand, CompositeCommand
 
 def setup_test() -> tuple[WireSegment, Circuit]:
     wire = WireSegment('W1', GridPoint(row=5, col=3), GridPoint(row=9, col=3))
@@ -72,3 +72,62 @@ def test_remove_wire_command_undo_redo():
     assert circuit.wires['W1'] is wire
     stack.redo()
     assert not circuit.wires
+
+def test_route_l_same_point():
+    start = GridPoint(row=4, col=4)
+    point_pairs = route_l(start, start, True)
+    assert not point_pairs
+
+def test_route_l_one_wire():
+    start = GridPoint(row=4, col=4)
+    end = GridPoint(row=4, col=8)
+    start_vert = GridPoint(row=4, col=4)
+    end_vert = GridPoint(row=8, col=4)
+    point_pairs = route_l(start, end, True)
+    point_pairs_vert = route_l(start_vert, end_vert, False)
+    assert len(point_pairs) == 1
+    assert len(point_pairs_vert) == 1
+
+def test_route_l_function():
+    start = GridPoint(row=4, col=4)
+    end = GridPoint(row=8, col=8)
+    point_pairs = route_l(start, end, True)
+    point_pairs_vert = route_l(start, end, False)
+    assert point_pairs != point_pairs_vert
+    assert len(point_pairs) == 2
+    assert len(point_pairs_vert) == 2
+    
+def test_wire_through():
+    circuit = Circuit()
+    _ = circuit.add_wire(GridPoint(row=5, col=3), GridPoint(row=9, col=3))
+    point = GridPoint(row=7, col=3)
+    wire_through = circuit.wire_through(point)
+    assert wire_through
+    point_endpoint = GridPoint(row=5, col=3)
+    wire_through2 = circuit.wire_through(point_endpoint)
+    assert not wire_through2
+    point_off = GridPoint(row=5, col=5)
+    wire_through3 = circuit.wire_through(point_off)
+    assert not wire_through3
+
+def test_split_wire_command():
+    circuit = Circuit()
+    og_wire = circuit.add_wire(GridPoint(row=5, col=3), GridPoint(row=9, col=3))
+    point = GridPoint(row=7, col=3)
+    command = SplitWireCommand(circuit, point)
+    command.execute()
+    assert len(circuit.wires.values()) == 2
+    command.undo()
+    assert og_wire in circuit.wires.values()
+
+def test_composite_command():
+    circuit = Circuit()
+    command1 = AddWireCommand(circuit, GridPoint(row=5, col=3), GridPoint(row=9, col=3))
+    command2 = AddWireCommand(circuit, GridPoint(row=9, col=3), GridPoint(row=9, col=5))
+    comp_command = CompositeCommand([command1, command2])
+    comp_command.execute()
+    assert circuit.wires
+    comp_command.undo()
+    assert not circuit.wires
+    comp_command.execute()
+    assert circuit.wires

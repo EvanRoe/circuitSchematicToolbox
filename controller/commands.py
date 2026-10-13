@@ -91,6 +91,7 @@ class AddWireCommand(Command):
 class RemoveWireCommand(Command):
     """Command that removes a wire from the circuit using its id."""
     def __init__(self, circuit: Circuit, wire_id: str) -> None:
+        """Constructs a RemoveWireCommand with the circuit and wire_id."""
         self.circuit = circuit
         self.wire_id = wire_id
         self.wire: WireSegment | None = None
@@ -104,3 +105,64 @@ class RemoveWireCommand(Command):
         """Undoes the removing of the wire from the circuit."""
         if self.wire is not None:
             self.circuit.insert_wire(self.wire)
+
+class SplitWireCommand(Command):
+    """Splits a wire into two wires meeting at the point."""
+    def __init__(self, circuit: Circuit, point: GridPoint) -> None:
+        """Constructs a SplitWireCommand using the circuit and the point that splits the wire."""
+        self.circuit = circuit
+        self.point = point
+        self.original: WireSegment | None = None
+        self.halves: list[WireSegment] = []
+        self._has_run = False
+
+    def execute(self) -> None:
+        """Runs the splitting of the wire from the circuit and the point and stores the original."""
+        if not self._has_run:
+            wire_through = self.circuit.wire_through(self.point)
+            if not wire_through:
+                self._has_run = True
+                return
+            else:
+                self.original = wire_through
+                self.circuit.remove_wire(self.original.id)
+                new_wire1 = self.circuit.add_wire(self.original.start, self.point)
+                new_wire2 = self.circuit.add_wire(self.point, self.original.end)
+                self.halves.append(new_wire1)
+                self.halves.append(new_wire2)
+                return
+        if not self.original:
+            return
+        self.circuit.remove_wire(self.original.id)
+        new_wire1 = self.circuit.add_wire(self.original.start, self.point)
+        new_wire2 = self.circuit.add_wire(self.point, self.original.end)
+        self.halves.append(new_wire1)
+        self.halves.append(new_wire2)
+        return
+
+    def undo(self) -> None:
+        """Undoes the splitting of the wire using the stored original."""
+        if not self.original:
+            return
+        self.circuit.remove_wire(self.halves[0].id)
+        self.circuit.remove_wire(self.halves[1].id)
+        self.circuit.insert_wire(self.original)
+
+class CompositeCommand(Command):
+    """Several commands that execute and undo as one step."""
+    def __init__(self, commands: list[Command]) -> None:
+        """Constructs a CompositeCommand using a list of commands."""
+        self.commands = commands
+
+    def execute(self) -> None:
+        """Runs the commands in order."""
+        for command in self.commands:
+            command.execute()
+
+    def undo(self) -> None:
+        """Undoes the commands in reverse order."""
+        for command in reversed(self.commands):
+            command.undo()
+
+    
+        

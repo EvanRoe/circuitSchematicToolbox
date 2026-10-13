@@ -6,7 +6,7 @@
 """
 import pytest
 
-from model.nets import UnionFind, extract_nets
+from model.nets import UnionFind, extract_nets, junction_points
 from model.circuit import Circuit
 from model.attributes import GridPoint
 
@@ -86,6 +86,50 @@ def test_unionfind_basic_function():
     uf.union(point_b, point_c)
     assert uf.find(point_a) == uf.find(point_c)
     
-    
-    
+
+def test_junctions_empty_circuit():
+    circuit = Circuit()
+    junctions = junction_points(circuit)
+    assert not junctions
+
+def test_junctions_two_wires_corner():
+    circuit = Circuit()
+    circuit.add_wire(GridPoint(row=4, col=4), GridPoint(row=4, col=8))
+    circuit.add_wire(GridPoint(row=4, col=8), GridPoint(row=8, col=8))
+    junctions = junction_points(circuit)
+    assert not junctions
+
+def test_junction_wire_one_terminal():
+    circuit = Circuit()
+    circuit.add_wire(GridPoint(row=4, col=4), GridPoint(row=4, col=8))
+    circuit.add_component('resistor', GridPoint(row=4, col=2))
+    junctions = junction_points(circuit)
+    assert not junctions
+
+def test_junctions_three_wires_end():
+    circuit = Circuit()
+    circuit.add_wire(GridPoint(row=4, col=4), GridPoint(row=4, col=8))
+    circuit.add_wire(GridPoint(row=4, col=8), GridPoint(row=8, col=8))
+    circuit.add_wire(GridPoint(row=1, col=8), GridPoint(row=4, col=8))
+    junctions = junction_points(circuit)
+    assert len(junctions) == 1
+
+def test_junctions_two_wires_one_terminal():
+    circuit = Circuit()
+    circuit.add_wire(GridPoint(row=4, col=4), GridPoint(row=4, col=8))
+    circuit.add_wire(GridPoint(row=4, col=8), GridPoint(row=8, col=8))
+    circuit.add_component('resistor', GridPoint(row=4, col=10))
+    junctions = junction_points(circuit)
+    assert len(junctions) == 1
+
+def test_junctions_two_wires_crossing():
+    circuit = Circuit()
+    circuit.add_wire(GridPoint(row=4, col=4), GridPoint(row=4, col=8))
+    circuit.add_wire(GridPoint(row=2, col=6), GridPoint(row=6, col=6))
+    junctions = junction_points(circuit)
+    assert not junctions
+
+
+
+
     
