@@ -9,6 +9,7 @@ from tkinter import ttk
 from collections.abc import Callable
 
 from model.component import COMPONENT_REGISTRY
+from model.wire import WireSegment
 
 FILE_ACTIONS = [
     ('new', 'New'),
@@ -39,4 +40,6 @@ class ComponentPanel(ttk.Frame):
                 text=cls.display_name,
                 command=lambda k=kind: on_pick(k),
             ).pack(fill='x', padx=4, pady=2)
+        ttk.Separator(self).pack(fill='x', pady=4)
+        ttk.Button(self, text='Wire', command=lambda: on_pick(WireSegment.kind)).pack(fill='x')
 

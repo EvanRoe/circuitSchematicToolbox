@@ -21,6 +21,7 @@ TERMINAL_RADIUS_PX = 3
 GRID_COLOUR = '#d9d9d9'
 SYMBOL_COLOUR = '#000000'
 BACKGROUND_COLOUR = '#ffffff'
+GHOST_COLOUR = '#3399ff'
 
 
 class CircuitCanvas(tk.Canvas):
@@ -141,6 +142,19 @@ class CircuitCanvas(tk.Canvas):
                 fill=SYMBOL_COLOUR,
                 tags=('symbol', 'junction'),
                 )
+
+    def draw_ghost_wires(self, pairs: list[tuple[GridPoint, GridPoint]]) -> None:
+        """Shows a temporary preview of the wire placement to be added."""
+        self.clear_ghost()
+        for start, end in pairs:
+            x1, y1 = self.grid_to_pixel(start.row, start.col)
+            x2, y2 = self.grid_to_pixel(end.row, end.col)
+            self.create_line(
+                x1, y1, x2, y2, fill=GHOST_COLOUR, dash=(4, 2), width=WIRE_WIDTH_PX, tags='ghost')
+
+    def clear_ghost(self) -> None:
+        """Clears the ghost preview."""
+        self.delete('ghost')
 
 
     def redraw(self) -> None:

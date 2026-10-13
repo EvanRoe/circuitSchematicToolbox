@@ -5,6 +5,7 @@
 @date 2026-10-03
 """
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 
 
 from model.attributes import GridPoint
@@ -150,9 +151,9 @@ class SplitWireCommand(Command):
 
 class CompositeCommand(Command):
     """Several commands that execute and undo as one step."""
-    def __init__(self, commands: list[Command]) -> None:
+    def __init__(self, commands: Sequence[Command]) -> None:
         """Constructs a CompositeCommand using a list of commands."""
-        self.commands = commands
+        self.commands = list(commands)
 
     def execute(self) -> None:
         """Runs the commands in order."""

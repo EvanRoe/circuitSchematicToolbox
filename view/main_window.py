@@ -50,6 +50,7 @@ class MainWindow:
         root.bind_all('<Control-Z>', self.on_undo)
         root.bind_all('<Control-y>', self.on_redo)
         root.bind_all('<Control-Y>', self.on_redo)
+        root.bind_all('<Escape>', self.controller.cancel)
 
 
         self.show_panel('file')
@@ -104,6 +105,7 @@ class MainWindow:
     def on_component_picked(self, kind: str) -> None:
         """Sets the chosen component in the panel."""
         self.controller.armed_kind = kind
+        self.canvas.config(cursor='crosshair')
 
     def on_undo(self, event=None) -> None:
         """Runs the undo command through the stack and redraws."""
