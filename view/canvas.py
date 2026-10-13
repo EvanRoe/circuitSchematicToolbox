@@ -9,9 +9,14 @@ import tkinter as tk
 from model.circuit import Circuit
 from model.component import Component
 from model.attributes import GridPoint
+from model.wire import WireSegment
+from model.nets import junction_points
 
 CELL_PX = 20
 MARGIN_PX = 20
+WIRE_WIDTH_PX = 2
+JUNCTION_RADIUS_PX = 4
+TERMINAL_RADIUS_PX = 3
 
 GRID_COLOUR = '#d9d9d9'
 SYMBOL_COLOUR = '#000000'
@@ -103,20 +108,49 @@ class CircuitCanvas(tk.Canvas):
         """Draws the terminals of the given component."""
         for _, point in component.get_terminal_positions().items():
             x, y = self.grid_to_pixel(point.row, point.col)
-            r = 3
-            self.create_oval(x - r, y - r, x + r, y + r, fill=SYMBOL_COLOUR, tags=('symbol', 'terminal'))
+            self.create_oval(
+                x - TERMINAL_RADIUS_PX,
+                y - TERMINAL_RADIUS_PX,
+                x + TERMINAL_RADIUS_PX,
+                y + TERMINAL_RADIUS_PX,
+                fill=SYMBOL_COLOUR,
+                tags=('symbol', 'terminal')
+                )
 
     def _draw_label(self, component: Component) -> None:
         """Depicts the label of the given component."""
         x, y = self.grid_to_pixel(component.position.row - 0.8, component.position.col)
         self.create_text(x, y, text=component.label.text, tags='symbol')
 
+    def draw_wire(self, wire: WireSegment) -> None:
+        """Draws a wire segment."""
+        x1, y1 = self.grid_to_pixel(row=wire.start.row, col=wire.start.col)
+        x2, y2 = self.grid_to_pixel(row=wire.end.row, col=wire.end.col)
+        self.create_line(x1, y1, x2, y2, width=WIRE_WIDTH_PX, fill=SYMBOL_COLOUR, tags=('symbol', 'wire'))
+
+    def _draw_junctions(self) -> None:
+        """Draws a dot at every junction."""
+        junctions = junction_points(self.circuit)
+        for junction in junctions:
+            x, y = self.grid_to_pixel(row=junction.row, col=junction.col)
+            self.create_oval(
+                x - JUNCTION_RADIUS_PX,
+                y - JUNCTION_RADIUS_PX,
+                x + JUNCTION_RADIUS_PX,
+                y + JUNCTION_RADIUS_PX,
+                fill=SYMBOL_COLOUR,
+                tags=('symbol', 'junction'),
+                )
+
 
     def redraw(self) -> None:
         """Redraws the circuit after a change."""
         self.clear()
+        for wire in self.circuit.wires.values():
+            self.draw_wire(wire)
         for component in self.circuit.components.values():
             self.draw_component(component)
+        self._draw_junctions()
         self.tag_raise('readout')
 
 

@@ -10,7 +10,6 @@ from model.circuit import Circuit
 from controller.commands import AddComponentCommand, RemoveComponentCommand
 from controller.stack import CommandStack
 from view.canvas import CircuitCanvas
-from model.attributes import GridPoint
 
 class InteractionController:
     """The controller that binds the interactions and runs the commands."""

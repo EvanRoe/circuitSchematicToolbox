@@ -1,4 +1,11 @@
+"""
+@file nets.py
+@brief Defines the nets and their connection logic.
+@author Evan Roe
+@date 2026-10-12
+"""
 from dataclasses import dataclass, field
+from collections import Counter
 
 from model.attributes import GridPoint
 from model.circuit import Circuit
@@ -73,3 +80,17 @@ def extract_nets(circuit: Circuit) -> list[Net]:
         nets[root].wire_ids.add(wire.id)
 
     return list(nets.values())
+
+def junction_points(circuit: Circuit) -> set[GridPoint]:
+    """Returns points where 3 or more connections are."""
+    counts: Counter[GridPoint] = Counter()
+    for component in circuit.components.values():
+            terminals = component.get_terminal_positions()
+            for terminal in terminals.values():
+                counts[terminal] += 1
+
+    for wire in circuit.wires.values():
+        counts[wire.start] += 1
+        counts[wire.end] += 1
+    junctions = {point for point, count in counts.items() if count >= 3}
+    return junctions
