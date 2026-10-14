@@ -44,6 +44,7 @@ class InteractionController:
         point = self.canvas.pixel_to_grid(event.x, event.y)
         if self.armed_kind == WireSegment.kind:
             self.wire_start = point
+            self.is_horizontal = None
             return
         self.stack.execute(AddComponentCommand(self.circuit, self.armed_kind, point))
         self.canvas.redraw()
@@ -59,8 +60,12 @@ class InteractionController:
         self._update_readout(point)
         if self.wire_start is None:
             return
-        self.is_horizontal = abs(self.wire_start.row - point.row) <= abs(self.wire_start.col - point.col)
-        point_pairs = route_l(self.wire_start, point, self.is_horizontal)
+
+        if self.is_horizontal is None and point != self.wire_start:
+            rows_moved = abs(self.wire_start.row - point.row)
+            cols_moved = abs(self.wire_start.col - point.col)
+            self.is_horizontal = cols_moved >= rows_moved
+        point_pairs = route_l(self.wire_start, point, bool(self.is_horizontal))
         self.canvas.draw_ghost_wires(point_pairs)
 
     def on_release(self, event: tk.Event) -> None:
@@ -68,15 +73,14 @@ class InteractionController:
         if self.wire_start is None:
             return
         start = self.wire_start
+        horizontal = bool(self.is_horizontal)
         self.canvas.clear_ghost()
-
-        end = self.canvas.pixel_to_grid(event.x, event.y)
-        self.is_horizontal = abs(start.row - end.row) <= abs(start.col - end.col)
-        horizontal = self.is_horizontal
-
-        point_pairs = route_l(self.wire_start, end, horizontal)
         self.wire_start = None
         self.is_horizontal = None
+
+        end = self.canvas.pixel_to_grid(event.x, event.y)
+
+        point_pairs = route_l(start, end, horizontal)
 
         if point_pairs is None:
             return

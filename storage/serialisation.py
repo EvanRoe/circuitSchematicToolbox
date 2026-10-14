@@ -8,9 +8,10 @@ import json
 from pathlib import Path
 
 from model.circuit import Circuit
+from model.wire import WireSegment
 from model.component import Component
 
-FORMAT_VERSION = 1
+FORMAT_VERSION = 2
 
 
 def circuit_to_dict(circuit: Circuit) -> dict:
@@ -19,6 +20,7 @@ def circuit_to_dict(circuit: Circuit) -> dict:
         'format_version': FORMAT_VERSION,
         'counter': circuit.counter,
         'components': [c.to_dict() for c in circuit.components.values()],
+        'wires': [w.to_dict() for w in circuit.wires.values()],
     }
 
 def circuit_from_dict(data: dict, circuit: Circuit) -> None:
@@ -34,11 +36,20 @@ def circuit_from_dict(data: dict, circuit: Circuit) -> None:
             raise ValueError(f"Duplicate component id {component.id!r} in file")
         components[component.id] = component
 
+    wires = {}
+    for entry in data['wires']:
+        wire = WireSegment.from_dict(entry)
+        if wire.id in wires:
+            raise ValueError(f"Duplicate wire id {wire.id!r} in file")
+        wires[wire.id] = wire
+
     counter = {str(kind): int(count) for kind, count in data['counter'].items()}
 
     circuit.clear()
     for component in components.values():
         circuit.insert_component(component)
+    for wire in wires.values():
+        circuit.insert_wire(wire)
     circuit.counter.update(counter)
     
 
