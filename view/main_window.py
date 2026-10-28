@@ -5,14 +5,15 @@
 @date 2026-10-03
 """
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, filedialog, messagebox, simpledialog
 from pathlib import Path
 
 from view.canvas import CircuitCanvas
 from model.circuit import Circuit
-from view.panels import FilePanel, ComponentPanel
+from view.panels import FilePanel, ComponentPanel, FavouritesPanel
 from controller.interactions import InteractionController
 from controller.stack import CommandStack
+from storage.favourites import favourite_exists, save_favourite, load_favourite, list_favourites
 from storage.serialisation import load_json, save_json
 
 SIDE_PANEL_WIDTH = 220
@@ -55,6 +56,8 @@ class MainWindow:
 
         self.show_panel('file')
 
+        self._refresh_favourites()
+
     def _build_top_bar(self) -> None:
         """Builds the tab bar of the GUI."""
         top_bar = ttk.Frame(self.root)
@@ -84,9 +87,10 @@ class MainWindow:
             self.side_frame,
             on_pick=self.on_component_picked
         )
-        self.panels['favourites'] = PlaceholderPanel(
+        self.panels['favourites'] = FavouritesPanel(
             self.side_frame,
-            TABS[2][1],
+            self.on_favourite_save,
+            self.on_favourite_load,
         )
             
 
@@ -152,15 +156,38 @@ class MainWindow:
         except OSError as e:
             messagebox.showerror("Could not save file", str(e))
 
+    def on_favourite_save(self) -> None:
+        """Saves the current circuit as a favourite."""
+        name = simpledialog.askstring('Save favourite', 'Name:', parent=self.root)
+        if name is None:
+            return
+        try:
+            if favourite_exists(name):
+                yesno = messagebox.askyesno('Replace?', f"A favourite called {name!r} already exists. Replace it?")
+                if not yesno:
+                    return
+            save_favourite(self.circuit, name)
+        except (ValueError, OSError) as e:
+            messagebox.showerror("Could not save circuit", str(e))
+            return
+        self._refresh_favourites()
+
+    def on_favourite_load(self, name: str) -> None:
+        """Loads the chosen favourited circuit."""
+        try:
+            load_favourite(name, self.circuit)
+        except (OSError, ValueError, KeyError) as e:
+            messagebox.showerror("Could not load favourite", str(e))
+            return
+        self._reset_editor()
+
+    def _refresh_favourites(self) -> None:
+        """Refreshes the FavouritesPanel."""
+        self.panels['favourites'].set_names(list_favourites())
+
     def _reset_editor(self) -> None:
         """Called after a circuit clear to reset main editor attributes."""
         self.stack.clear()
         self.canvas.redraw()
-        self.controller.armed_kind = None
-
-
-class PlaceholderPanel(ttk.Frame):
-    def __init__(self, parent: tk.Misc, text: str="") ->  None:
-        super().__init__(parent)
-        ttk.Label(self, text=text).pack(padx=10, pady=10)
+        self.controller.cancel()
 

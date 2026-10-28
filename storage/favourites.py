@@ -33,8 +33,8 @@ def favourite_exists(name: str, folder: Path = FAVOURITES_DIR) -> bool:
 
 def save_favourite(circuit: Circuit, name: str, folder: Path = FAVOURITES_DIR) -> None:
     """Save the circuit with the favourite name to the folder."""
-    folder.mkdir(parents=True, exist_ok=True)
     path = _favourite_path(name, folder)
+    folder.mkdir(parents=True, exist_ok=True)
     save_json(circuit, path)
 
 def load_favourite(name: str, circuit: Circuit, folder: Path = FAVOURITES_DIR) -> None:
