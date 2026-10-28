@@ -54,7 +54,7 @@ class CircuitCanvas(tk.Canvas):
         """Builds the mouse location readout in the bottom left of the canvas."""
         rows = (self.height - 2 * MARGIN_PX) // self.cell_px
         x1, y1 = self.grid_to_pixel(rows - 1, 0)
-        x2, y2 = self.grid_to_pixel(rows, 4)
+        x2, y2 = self.grid_to_pixel(rows, 5)
         self.create_rectangle(
             x1, y1, x2, y2,
             fill='#cce5ff',
