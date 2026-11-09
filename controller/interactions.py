@@ -10,7 +10,7 @@ import tkinter as tk
 from controller.commands import AddComponentCommand, RemoveComponentCommand, AddWireCommand, SplitWireCommand, CompositeCommand
 from controller.stack import CommandStack
 from view.canvas import CircuitCanvas
-from model.wire import WireSegment, route_l
+from model.wire import WireSegment, route_l, split_at_points
 from model.circuit import Circuit
 from model.attributes import GridPoint
 
@@ -79,14 +79,17 @@ class InteractionController:
         self.is_horizontal = None
 
         end = self.canvas.pixel_to_grid(event.x, event.y)
-
         point_pairs = route_l(start, end, horizontal)
-
-        if point_pairs is None:
+        if not point_pairs:
             return
-        points = {point for pair in point_pairs for point in pair}
+
+        existing_ends = {p for w in self.circuit.wires.values() for p in (w.start, w.end)}
+        pieces = [piece for a, b in point_pairs
+                  for piece in split_at_points(a, b, existing_ends)]
+        
+        points = {point for pair in pieces for point in pair}
         commands = [SplitWireCommand(self.circuit, point) for point in points]
-        commands += [AddWireCommand(self.circuit, a, b) for a, b in point_pairs]
+        commands += [AddWireCommand(self.circuit, a, b) for a, b in pieces]
         comp_command = CompositeCommand(commands)
         self.stack.execute(comp_command)
         self.canvas.redraw()

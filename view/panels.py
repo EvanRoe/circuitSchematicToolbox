@@ -57,9 +57,9 @@ class FavouritesPanel(ttk.Frame):
             side='bottom', fill='x', padx=4, pady=4,
         )
 
+        self.listbox = tk.Listbox(self, exportselection=False)
         scrollbar = ttk.Scrollbar(self, orient='vertical', command=self.listbox.yview)
         scrollbar.pack(side='right', fill='y')
-        self.listbox = tk.Listbox(self, exportselection=False)
         self.listbox.pack(side='top', expand=True, fill='both', padx=4, pady=4)
         self.listbox.bind('<Double-Button-1>', lambda event: self._load_selected())
         self.listbox.config(yscrollcommand=scrollbar.set)

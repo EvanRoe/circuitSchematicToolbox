@@ -8,6 +8,7 @@ import pytest
 
 from model.circuit import Circuit
 from model.wire import WireSegment, route_l
+from model.nets import junction_points
 from model.attributes import GridPoint
 from controller.stack import CommandStack
 from controller.commands import AddWireCommand, RemoveWireCommand, SplitWireCommand, CompositeCommand
@@ -131,3 +132,16 @@ def test_composite_command():
     assert not circuit.wires
     comp_command.execute()
     assert circuit.wires
+
+def test_wire_ending_mid_wire_splits_and_makes_junction():
+    circuit = Circuit()
+    circuit.add_wire(GridPoint(row=5, col=2), GridPoint(row=5, col=8))   
+    mid = GridPoint(row=5, col=5)
+
+    assert circuit.wire_through(mid) is not None                         
+    commands = [SplitWireCommand(circuit, mid),
+                AddWireCommand(circuit, mid, GridPoint(row=9, col=5))]
+    CompositeCommand(commands).execute()
+
+    assert 'W1' not in circuit.wires                                      
+    assert mid in junction_points(circuit)                               
