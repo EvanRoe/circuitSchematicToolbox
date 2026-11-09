@@ -77,7 +77,7 @@ class Resistor(Component):
     prefix = 'R'
     default_unit = 'Ω'
 
-    def __init__(self, id, label, position, orientation = Orientation.DEGREE_0):
+    def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
         """Constructs a Resistor using its id, label, position, and orientation."""
         super().__init__(id, label, position, orientation)
         self.terminals = [Terminal(name="left", row_offset=0, col_offset=-2), Terminal(name="right", row_offset=0, col_offset=2)]
@@ -102,7 +102,7 @@ class Capacitor(Component):
     prefix = 'C'
     default_unit = 'F'
 
-    def __init__(self, id, label, position, orientation = Orientation.DEGREE_0):
+    def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
         """Constructs a Capacitor using its id, label, position, and orientation."""
         super().__init__(id, label, position, orientation)
         self.terminals = [Terminal(name="pos", row_offset=0, col_offset=-1), Terminal(name="neg", row_offset=0, col_offset=1)]
@@ -122,7 +122,7 @@ class Capacitor(Component):
         return entry
 
 
-COMPONENT_REGISTRY = {
+COMPONENT_REGISTRY: dict[str, type[Component]] = {
     'resistor': Resistor,
     'capacitor': Capacitor,
 }
