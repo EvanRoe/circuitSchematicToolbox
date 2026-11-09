@@ -20,6 +20,7 @@ FILE_ACTIONS = [
 class FilePanel(ttk.Frame):
     """The file tab in the GUI."""
     def __init__(self, parent: tk.Misc, on_pick: Callable[[str], None]) -> None:
+        """Constructs a FilePanel on its parent and the button function."""
         super().__init__(parent)
 
         for kind, display_name in FILE_ACTIONS:
@@ -32,7 +33,7 @@ class FilePanel(ttk.Frame):
 class ComponentPanel(ttk.Frame):
     """The component tab in the GUI."""
     def __init__(self, parent: tk.Misc, on_pick: Callable[[str], None]) -> None:
-        """Constructs a ComponentPalette on its parent and the button function."""
+        """Constructs a ComponentPanel on its parent and the button function."""
         super().__init__(parent)
         for kind, cls in COMPONENT_REGISTRY.items():
             ttk.Button(
@@ -43,3 +44,9 @@ class ComponentPanel(ttk.Frame):
         ttk.Separator(self).pack(fill='x', pady=4)
         ttk.Button(self, text='Wire', command=lambda: on_pick(WireSegment.kind)).pack(fill='x')
 
+class FavouritesPanel(ttk.Frame):
+    """The favourites tab, which lists saved favourites."""
+    def __init__(self, parent: tk.Misc, on_save: Callable[[], None], on_load: Callable[[str], None]) -> None:
+        """Constructs a FavouritesPanel with the two functions."""
+        super().__init__(parent)
+        
