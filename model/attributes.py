@@ -16,6 +16,10 @@ class Orientation(IntEnum):
     DEGREE_180 = 180
     DEGREE_270 = 270
 
+    def rotated_cw(self) -> Orientation:
+        """Returns the next clockwise Orientation."""
+        return Orientation((self + 90) % 360)
+
 
 @dataclass(frozen=True, order=True, kw_only=True)
 class GridPoint():
@@ -61,3 +65,16 @@ class Label():
         """Returns a Label from the saved dict."""
         return cls(text=data['text'], value=data['value'], unit=data['unit'])
 
+
+def rotate_offset(row: float, col: float, orientation: Orientation) -> tuple[float, float]:
+    """Rotates the offset about (0,0), where 90 is clockwise."""
+    match orientation:
+        case Orientation.DEGREE_0:
+            return (row, col)
+        case Orientation.DEGREE_90:
+            return (col, -row)
+        case Orientation.DEGREE_180:
+            return (-row, -col)
+        case Orientation.DEGREE_270:
+            return (-col, row)
+    

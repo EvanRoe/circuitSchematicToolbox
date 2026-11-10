@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from model.attributes import Label, GridPoint, Orientation, Terminal
+from model.attributes import Label, GridPoint, Orientation, Terminal, rotate_offset
 
 class Component(ABC):
     """The base class for all components."""
@@ -33,9 +33,21 @@ class Component(ABC):
         comp_y = self.position.row
 
         for term in self.terminals:
-            positions = GridPoint(row=comp_y + term.row_offset, col=comp_x + term.col_offset)
+            row_rot, col_rot = rotate_offset(term.row_offset, term.col_offset, self.orientation)
+            positions = GridPoint(row=round(comp_y + row_rot), col=round(comp_x + col_rot))
             terminal_positions[term.name] = positions
         return terminal_positions
+
+    def rotated_shapes(self) -> list[tuple]:
+        """Rotates the symbol_shapes() to the component's Orientation."""
+        shapes = self.symbol_shapes()
+        new_shapes = []
+        for shape in shapes:
+            kind, x1, y1, x2, y2 = shape
+            y1_rot, x1_rot = rotate_offset(y1, x1, self.orientation)
+            y2_rot, x2_rot = rotate_offset(y2, x2, self.orientation)
+            new_shapes.append((kind, x1_rot, y1_rot, x2_rot, y2_rot))
+        return new_shapes
 
     def to_dict(self) -> dict:
         """Converts the Component into a dict for saving and loading."""
@@ -58,15 +70,11 @@ class Component(ABC):
             position=GridPoint.from_dict(data['position']),
             orientation=Orientation(data['orientation']),
             )
-        
 
     @abstractmethod
     def symbol_shapes(self) -> list[tuple]:
         ...
 
-    @abstractmethod
-    def to_netlist_entry(self) -> str:
-        ...
 
 
 
@@ -91,10 +99,6 @@ class Resistor(Component):
         ]
         return resistor_shapes
 
-    def to_netlist_entry(self):
-        entry = f"R{self.id} {self.label.value}{self.label.unit}"
-        return entry
-
 class Capacitor(Component):
     """Represents an electrical capacitor."""
     kind = 'capacitor'
@@ -116,10 +120,6 @@ class Capacitor(Component):
             ('line', 0.2, 0.0, 1.0, 0.0),
         ]
         return capacitor_shapes
-
-    def to_netlist_entry(self):
-        entry = f"C{self.id} {self.label.value}{self.label.unit}"
-        return entry
 
 
 COMPONENT_REGISTRY: dict[str, type[Component]] = {

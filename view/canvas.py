@@ -103,7 +103,7 @@ class CircuitCanvas(tk.Canvas):
 
     def _draw_symbol(self, component: Component) -> None:
         """Calls the draw_shapes() method using the given component."""
-        self.draw_shapes(component.symbol_shapes(), component.position)
+        self.draw_shapes(component.rotated_shapes(), component.position)
 
     def _draw_terminals(self, component: Component) -> None:
         """Draws the terminals of the given component."""
@@ -120,8 +120,12 @@ class CircuitCanvas(tk.Canvas):
 
     def _draw_label(self, component: Component) -> None:
         """Depicts the label of the given component."""
-        x, y = self.grid_to_pixel(component.position.row - 0.8, component.position.col)
-        self.create_text(x, y, text=component.label.text, tags='symbol')
+        if component.orientation in (0, 180):
+            x, y = self.grid_to_pixel(component.position.row - 0.8, component.position.col)
+            self.create_text(x, y, text=component.label.text, tags='symbol')
+        else:
+            x, y = self.grid_to_pixel(component.position.row, component.position.col + 0.8)
+            self.create_text(x, y, text=component.label.text, tags='symbol', anchor='w')
 
     def draw_wire(self, wire: WireSegment) -> None:
         """Draws a wire segment."""

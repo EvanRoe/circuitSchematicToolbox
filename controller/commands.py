@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Sequence
 
 
-from model.attributes import GridPoint
+from model.attributes import GridPoint, Orientation
 from model.circuit import Circuit
 from model.wire import WireSegment
 from model.component import Component
@@ -148,6 +148,31 @@ class SplitWireCommand(Command):
         self.circuit.remove_wire(self.halves[0].id)
         self.circuit.remove_wire(self.halves[1].id)
         self.circuit.insert_wire(self.original)
+
+class RotateComponentCommand(Command):
+    """Rotates the component 90 degree clockwise."""
+    def __init__(self, circuit: Circuit, component_id: str) -> None:
+        """Constructs a RotateComponentCommand using its circuit and the component id."""
+        self.circuit = circuit
+        self.comp_id = component_id
+        self.old: Orientation | None = None
+        self.new: Orientation | None = None
+
+    def execute(self) -> None:
+        """Executes the rotation and stores the old Orientation."""
+        component = self.circuit.components[self.comp_id]
+        if self.new is None:
+            self.old = component.orientation
+            self.new = self.old.rotated_cw()
+        component.orientation = self.new
+
+
+    def undo(self) -> None:
+        """Undoes the rotation using the stored old Orientation."""
+        if self.old is None:
+            return
+        self.circuit.components[self.comp_id].orientation = self.old
+
 
 class CompositeCommand(Command):
     """Several commands that execute and undo as one step."""

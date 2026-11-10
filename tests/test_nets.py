@@ -4,7 +4,6 @@
 @author Evan Roe
 @date 2026-10-10
 """
-import pytest
 
 from model.nets import UnionFind, extract_nets, junction_points
 from model.circuit import Circuit

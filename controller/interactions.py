@@ -7,7 +7,7 @@
 import tkinter as tk
 
 
-from controller.commands import AddComponentCommand, RemoveComponentCommand, AddWireCommand, SplitWireCommand, CompositeCommand
+from controller.commands import AddComponentCommand, RemoveComponentCommand, AddWireCommand, SplitWireCommand, CompositeCommand, RotateComponentCommand
 from controller.stack import CommandStack
 from view.canvas import CircuitCanvas
 from model.wire import WireSegment, route_l, split_at_points
@@ -102,11 +102,17 @@ class InteractionController:
         if component is not None:
             menu = tk.Menu(self.canvas, tearoff=0)
             menu.add_command(label='Remove', command= lambda: self.remove(component.id))
+            menu.add_command(label='Rotate', command= lambda: self.rotate(component.id))
             menu.tk_popup(event.x_root, event.y_root)
 
     def remove(self, component_id: str) -> None:
         """Helper function in the right click menu to remove a component."""
         self.stack.execute(RemoveComponentCommand(self.circuit, component_id))
+        self.canvas.redraw()
+
+    def rotate(self, component_id: str) -> None:
+        """Helper function in the right click menu to rotate a component."""
+        self.stack.execute(RotateComponentCommand(self.circuit, component_id))
         self.canvas.redraw()
 
     def cancel(self, event=None) -> None:
