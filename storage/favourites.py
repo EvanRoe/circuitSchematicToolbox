@@ -38,6 +38,11 @@ def save_favourite(circuit: Circuit, name: str, folder: Path = FAVOURITES_DIR) -
     save_json(circuit, path)
 
 def load_favourite(name: str, circuit: Circuit, folder: Path = FAVOURITES_DIR) -> None:
-    """Load a favourite from the name"""
+    """Load a favourite from the name."""
     path = _favourite_path(name, folder)
     load_json(path, circuit)
+
+def delete_favourite(name: str, folder: Path = FAVOURITES_DIR) -> None:
+    """Deletes a favourite from the name."""
+    path = _favourite_path(name, folder)
+    path.unlink(missing_ok=True)

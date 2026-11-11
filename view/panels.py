@@ -46,14 +46,18 @@ class ComponentPanel(ttk.Frame):
 
 class FavouritesPanel(ttk.Frame):
     """The favourites tab in the GUI, listing saved favourite circuits."""
-    def __init__(self, parent: tk.Misc, on_save: Callable[[], None], on_load: Callable[[str], None]) -> None:
+    def __init__(self, parent: tk.Misc, on_save: Callable[[], None], on_load: Callable[[str], None], on_delete: Callable[[str], None]) -> None:
         """Constructs a FavouritesPanel on its parent and the buttons call the given functions."""
         super().__init__(parent)
         self.on_load = on_load
+        self.on_delete = on_delete
         ttk.Button(self, text='Load', command=self._load_selected).pack(
             side='bottom', fill='x', padx=4, pady=(0, 4),
         )
         ttk.Button(self, text='Save current...', command=on_save).pack(
+            side='bottom', fill='x', padx=4, pady=4,
+        )
+        ttk.Button(self, text='Delete', command=self._delete_selected).pack(
             side='bottom', fill='x', padx=4, pady=4,
         )
 
@@ -77,3 +81,10 @@ class FavouritesPanel(ttk.Frame):
         if not row_nums:
             return
         self.on_load(self.listbox.get(row_nums[0]))
+
+    def _delete_selected(self) -> None:
+        """Deletes the selected favourites."""
+        row_nums = self.listbox.curselection()
+        if not row_nums:
+            return
+        self.on_delete(self.listbox.get(row_nums[0]))

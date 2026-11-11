@@ -75,9 +75,6 @@ class Component(ABC):
     def symbol_shapes(self) -> list[tuple]:
         ...
 
-
-
-
 class Resistor(Component):
     """Represents an electrical resistor."""
     kind = 'resistor'
@@ -88,14 +85,14 @@ class Resistor(Component):
     def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
         """Constructs a Resistor using its id, label, position, and orientation."""
         super().__init__(id, label, position, orientation)
-        self.terminals = [Terminal(name="left", row_offset=0, col_offset=-2), Terminal(name="right", row_offset=0, col_offset=2)]
+        self.terminals = [Terminal(name="a", row_offset=0, col_offset=-1), Terminal(name="b", row_offset=0, col_offset=1)]
 
     def symbol_shapes(self):
         """Holds the component shapes to draw it."""
         resistor_shapes = [
-            ('line', -2.0, 0.0, -1.0, 0.0),
-            ('rect', -1.0, -0.4, 1.0, 0.4),
-            ('line', 1.0, 0.0, 2.0, 0.0),
+            ('line', -1.0, 0.0, -0.5, 0.0),
+            ('rect', -0.5, -0.3, 0.5, 0.3),
+            ('line', 0.5, 0.0, 1.0, 0.0),
         ]
         return resistor_shapes
 
@@ -109,7 +106,7 @@ class Capacitor(Component):
     def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
         """Constructs a Capacitor using its id, label, position, and orientation."""
         super().__init__(id, label, position, orientation)
-        self.terminals = [Terminal(name="pos", row_offset=0, col_offset=-1), Terminal(name="neg", row_offset=0, col_offset=1)]
+        self.terminals = [Terminal(name="a", row_offset=0, col_offset=-1), Terminal(name="b", row_offset=0, col_offset=1)]
 
     def symbol_shapes(self):
         """Holds the component shapes to draw it."""
@@ -121,9 +118,130 @@ class Capacitor(Component):
         ]
         return capacitor_shapes
 
+class Inductor(Component):
+    """Represents an inductor."""
+    kind = 'inductor'
+    display_name = 'Inductor'
+    prefix = 'L'
+    default_unit = 'H'
+
+    def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
+        """Constructs a Inductor using its id, label, position, and orientation."""
+        super().__init__(id, label, position, orientation)
+        self.terminals = [Terminal(name="a", row_offset=0, col_offset=-1), Terminal(name="b", row_offset=0, col_offset=1)]
+
+    def symbol_shapes(self):
+        """Holds the component shapes to draw it."""
+        inductor_shapes = [
+            ('line', -1.0, 0.0, -0.5, 0.0),
+            ('rect', -0.5, -0.3, 0.5, 0.3),
+            ('fillrect', -0.5, -0.3, 0.5, 0.3),
+            ('line', 0.5, 0.0, 1.0, 0.0),
+        ]
+        return inductor_shapes
+
+class VoltageSource(Component):
+    """Represents a voltage source."""
+    kind = 'voltage_source'
+    display_name = 'Voltage Source'
+    prefix = 'V'
+    default_unit = 'V'
+
+    def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
+        """Constructs a VoltageSource using its id, label, position, and orientation."""
+        super().__init__(id, label, position, orientation)
+        self.terminals = [Terminal(name="neg", row_offset=0, col_offset=-1), Terminal(name="pos", row_offset=0, col_offset=1)]
+
+    def symbol_shapes(self):
+        """Holds the component shapes to draw it."""
+        voltage_source_shapes = [
+            ('line', -1.0, 0.0, -0.6, 0.0),
+            ('oval', -0.6, -0.6, 0.6, 0.6),
+            ('line', -0.48, 0.0, -0.2, 0.0),
+            ('line', 0.2, 0.0, 0.48, 0.0),
+            ('line', 0.34, 0.14, 0.34, -0.14),
+            ('line', 0.6, 0.0, 1.0, 0.0),
+        ]
+        return voltage_source_shapes 
+
+
+class CurrentSource(Component):
+    """Represents an current source."""
+    kind = 'current_source'
+    display_name = 'Current Source'
+    prefix = 'I'
+    default_unit = 'A'
+
+    def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
+        """Constructs a CurrentSource using its id, label, position, and orientation."""
+        super().__init__(id, label, position, orientation)
+        self.terminals = [Terminal(name="neg", row_offset=0, col_offset=-1), Terminal(name="pos", row_offset=0, col_offset=1)]
+
+    def symbol_shapes(self):
+        """Holds the component shapes to draw it."""
+        current_source_shapes = [
+            ('line', -1.0, 0.0, -0.6, 0.0),
+            ('oval', -0.6, -0.6, 0.6, 0.6),
+            ('arrow', -0.4, 0.0, 0.4, 0.0),
+            ('line', 0.6, 0.0, 1.0, 0.0),
+        ]
+        return current_source_shapes 
+
+
+class Diode(Component):
+    """Represents a diode."""
+    kind = 'diode'
+    display_name = 'Diode'
+    prefix = 'D'
+    default_unit = ''
+
+    def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
+        """Constructs a Diode using its id, label, position, and orientation."""
+        super().__init__(id, label, position, orientation)
+        self.terminals = [Terminal(name="cathode", row_offset=0, col_offset=-1), Terminal(name="anode", row_offset=0, col_offset=1)]
+
+    def symbol_shapes(self):
+        """Holds the component shapes to draw it."""
+        diode_shapes = [
+            ('line', -1.0, 0.0, -0.5, 0.0),
+            ('line', -0.5, 0.5, -0.5, -0.5),
+            ('line', -0.5, 0.5, 0.5, 0.0),
+            ('line', -0.5, -0.5, 0.5, 0.0),
+            ('line', 0.5, 0.5, 0.5, -0.5),
+            ('line', 0.5, 0.0, 1.0, 0.0),
+        ]
+        return diode_shapes 
+
+class Ground(Component):
+    """Represents ground reference."""
+    kind = 'ground'
+    display_name = 'Ground'
+    prefix = 'GND'
+    default_unit = ''
+
+    def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
+        """Constructs a Ground using its id, label, position, and orientation."""
+        super().__init__(id, label, position, orientation)
+        self.terminals = [Terminal(name="gnd", row_offset=0, col_offset=0)]
+
+    def symbol_shapes(self):
+        """Holds the component shapes to draw it."""
+        ground_shapes = [
+            ('line', 0.0, 0.0, 0.0, 0.9),
+            ('line', -0.9, 0.3, 0.9, 0.3),
+            ('line', -0.6, 0.6, 0.6, 0.6),
+            ('line', -0.3, 0.9, 0.3, 0.9),
+        ]
+        return ground_shapes 
+
 
 COMPONENT_REGISTRY: dict[str, type[Component]] = {
     'resistor': Resistor,
     'capacitor': Capacitor,
+    'inductor': Inductor,
+    'voltage_source': VoltageSource,
+    'current_source': CurrentSource,
+    'diode': Diode,
+    'ground': Ground,
 }
 

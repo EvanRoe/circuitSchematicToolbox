@@ -13,7 +13,7 @@ from model.circuit import Circuit
 from view.panels import FilePanel, ComponentPanel, FavouritesPanel
 from controller.interactions import InteractionController
 from controller.stack import CommandStack
-from storage.favourites import favourite_exists, save_favourite, load_favourite, list_favourites
+from storage.favourites import favourite_exists, save_favourite, load_favourite, list_favourites, delete_favourite
 from storage.serialisation import load_json, save_json
 
 SIDE_PANEL_WIDTH = 220
@@ -91,6 +91,7 @@ class MainWindow:
             self.side_frame,
             self.on_favourite_save,
             self.on_favourite_load,
+            self.on_favourite_delete,
         )
             
 
@@ -180,6 +181,15 @@ class MainWindow:
             messagebox.showerror("Could not load favourite", str(e))
             return
         self._reset_editor()
+
+    def on_favourite_delete(self, name: str) -> None:
+        """Deletes the chosen favourited circuit."""
+        try:
+            delete_favourite(name)
+        except (ValueError, OSError) as e:
+            messagebox.showerror("Could not delete favourite", str(e))
+            return
+        self._refresh_favourites()
 
     def _refresh_favourites(self) -> None:
         """Refreshes the FavouritesPanel."""

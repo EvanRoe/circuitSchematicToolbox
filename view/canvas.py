@@ -94,6 +94,12 @@ class CircuitCanvas(tk.Canvas):
                 self.create_line(x1, y1, x2, y2, fill=colour, tags='symbol')
             elif kind == 'rect':
                 self.create_rectangle(x1, y1, x2, y2, outline=colour, tags='symbol')
+            elif kind == 'fillrect':
+                self.create_rectangle(x1, y1, x2, y2, outline=colour, fill=colour, tags='symbol')
+            elif kind == 'oval':
+                self.create_oval(x1, y1, x2, y2, outline=colour, tags='symbol')
+            elif kind == 'arrow':
+                self.create_line(x1, y1, x2, y2, arrow='last', fill=colour, tags='symbol')
 
     def draw_component(self, component: Component) -> None:
         """Calls the different draw methods to draw the given component."""
