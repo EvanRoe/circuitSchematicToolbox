@@ -7,8 +7,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 
-
-from model.attributes import GridPoint, Orientation
+from model.attributes import GridPoint, Orientation, Label
 from model.circuit import Circuit
 from model.wire import WireSegment
 from model.component import Component
@@ -172,6 +171,28 @@ class RotateComponentCommand(Command):
         if self.old is None:
             return
         self.circuit.components[self.comp_id].orientation = self.old
+
+class EditLabelCommand(Command):
+    """Replaces a component's label with a new edited one."""
+    def __init__(self, circuit: Circuit, component_id: str, new_label: Label) -> None:
+        """Constructs an EditLabelCommand using the circuit, the component id and the new Label."""
+        self.circuit = circuit
+        self.component_id = component_id
+        self.new_label = new_label
+        self.old_label: Label | None = None
+
+    def execute(self) -> None:
+        """Executes the replacing of the old Label."""
+        if self.old_label is None:
+            self.old_label = self.circuit.components[self.component_id].label
+        self.circuit.components[self.component_id].label = self.new_label
+
+
+    def undo(self) -> None:
+        """Undoes the replacement using the stored old Label."""
+        if self.old_label is None:
+            return
+        self.circuit.components[self.component_id].label = self.old_label
 
 
 class CompositeCommand(Command):

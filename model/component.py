@@ -17,6 +17,8 @@ class Component(ABC):
     prefix: str
     default_unit: str
     default_value: int = 0
+    has_value: bool = True
+
 
     def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
         """Constructs a Component with its id, label, position, and orientation."""
@@ -194,6 +196,7 @@ class Diode(Component):
     display_name = 'Diode'
     prefix = 'D'
     default_unit = ''
+    has_value = False
 
     def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
         """Constructs a Diode using its id, label, position, and orientation."""
@@ -218,6 +221,7 @@ class Ground(Component):
     display_name = 'Ground'
     prefix = 'GND'
     default_unit = ''
+    has_value = False
 
     def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
         """Constructs a Ground using its id, label, position, and orientation."""

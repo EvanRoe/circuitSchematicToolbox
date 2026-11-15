@@ -126,12 +126,17 @@ class CircuitCanvas(tk.Canvas):
 
     def _draw_label(self, component: Component) -> None:
         """Depicts the label of the given component."""
+        text = component.label.text
         if component.orientation in (0, 180):
             x, y = self.grid_to_pixel(component.position.row - 0.8, component.position.col)
-            self.create_text(x, y, text=component.label.text, tags='symbol')
+            self.create_text(x, y, text=text, tags=('symbol', 'label'))
+            x, y = self.grid_to_pixel(component.position.row + 0.8, component.position.col)
+            self.create_text(x, y, text=component.label.display(), tags=('symbol', 'label'))
         else:
+            if component.has_value:
+                text += '\n' + component.label.display()
             x, y = self.grid_to_pixel(component.position.row, component.position.col + 0.8)
-            self.create_text(x, y, text=component.label.text, tags='symbol', anchor='w')
+            self.create_text(x, y, text=text, tags='symbol', anchor='w')
 
     def draw_wire(self, wire: WireSegment) -> None:
         """Draws a wire segment."""

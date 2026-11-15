@@ -44,7 +44,7 @@ class Terminal():
     row_offset: int
     col_offset: int
 
-@dataclass
+@dataclass(frozen=True)
 class Label():
     """Component label with its text and value."""
     value: float
@@ -53,7 +53,7 @@ class Label():
     
     def display(self) -> str:
         """Concatenates the value and unit into one variable."""
-        full_value = f"{self.value}{self.unit}"
+        full_value = f"{self.value:g}{self.unit}"
         return full_value
 
     def to_dict(self) -> dict:

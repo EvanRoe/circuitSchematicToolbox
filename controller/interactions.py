@@ -4,10 +4,12 @@
 @author Evan Roe
 @date 2026-10-03
 """
+from dataclasses import replace
 import tkinter as tk
+from tkinter import simpledialog
 
 
-from controller.commands import AddComponentCommand, RemoveComponentCommand, AddWireCommand, SplitWireCommand, CompositeCommand, RotateComponentCommand
+from controller.commands import AddComponentCommand, RemoveComponentCommand, AddWireCommand, SplitWireCommand, CompositeCommand, RotateComponentCommand, EditLabelCommand
 from controller.stack import CommandStack
 from view.canvas import CircuitCanvas
 from model.wire import WireSegment, route_l, split_at_points
@@ -103,6 +105,7 @@ class InteractionController:
             menu = tk.Menu(self.canvas, tearoff=0)
             menu.add_command(label='Remove', command= lambda: self.remove(component.id))
             menu.add_command(label='Rotate', command= lambda: self.rotate(component.id))
+            menu.add_command(label='Edit Value', command= lambda: self.edit_value(component.id))
             menu.tk_popup(event.x_root, event.y_root)
 
     def remove(self, component_id: str) -> None:
@@ -115,6 +118,24 @@ class InteractionController:
         self.stack.execute(RotateComponentCommand(self.circuit, component_id))
         self.canvas.redraw()
 
+    def edit_value(self, component_id: str) -> None:
+        """Helper function that shows a popup to edit the value of a component."""
+        component = self.circuit.components[component_id]
+        value = simpledialog.askfloat(
+            'Edit value',
+            f'{component.id} value ({component.label.unit}):',
+            initialvalue=component.label.value,
+            parent=self.canvas,
+        )
+        if value is None:
+            return
+        if value == component.label.value:
+            return
+        new_label = replace(component.label, value=value)
+        self.stack.execute(EditLabelCommand(self.circuit, component_id, new_label))
+        self.canvas.redraw()
+
+        
     def cancel(self, event=None) -> None:
         """Escape: Abandon the drag in progress and disarm."""
         self.canvas.clear_ghost()
