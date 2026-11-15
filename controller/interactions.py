@@ -9,10 +9,11 @@ import tkinter as tk
 from tkinter import simpledialog
 
 
-from controller.commands import AddComponentCommand, RemoveComponentCommand, AddWireCommand, SplitWireCommand, CompositeCommand, RotateComponentCommand, EditLabelCommand
+from controller.commands import AddComponentCommand, RemoveComponentCommand, AddWireCommand, RemoveWireCommand, SplitWireCommand, CompositeCommand, RotateComponentCommand, EditLabelCommand
 from controller.stack import CommandStack
 from view.canvas import CircuitCanvas
 from model.wire import WireSegment, route_l, split_at_points
+from model.nets import wire_run
 from model.circuit import Circuit
 from model.attributes import GridPoint
 
@@ -101,12 +102,17 @@ class InteractionController:
         """On right click, if there is a component there, opens a menu to interact with the component."""
         point = self.canvas.pixel_to_grid(event.x, event.y)
         component = self.circuit.component_at(point)
+        menu = tk.Menu(self.canvas, tearoff=0)
+        wire = self.circuit.wire_at(point)
+
         if component is not None:
-            menu = tk.Menu(self.canvas, tearoff=0)
             menu.add_command(label='Remove', command= lambda: self.remove(component.id))
             menu.add_command(label='Rotate', command= lambda: self.rotate(component.id))
-            menu.add_command(label='Edit Value', command= lambda: self.edit_value(component.id))
-            menu.tk_popup(event.x_root, event.y_root)
+            if component.has_value:
+                menu.add_command(label='Edit Value', command= lambda: self.edit_value(component.id))
+        elif wire is not None:
+            menu.add_command(label='Remove', command= lambda: self.remove_wire(wire.id))
+        menu.tk_popup(event.x_root, event.y_root)
 
     def remove(self, component_id: str) -> None:
         """Helper function in the right click menu to remove a component."""
@@ -136,6 +142,13 @@ class InteractionController:
         self.canvas.redraw()
 
         
+    def remove_wire(self, wire_id: str) -> None:
+        """Helper function that removes a right clicked wire."""
+        ids = wire_run(self.circuit, wire_id)
+        self.stack.execute(CompositeCommand([RemoveWireCommand(self.circuit, id) for id in ids]))
+        self.canvas.redraw()
+
+
     def cancel(self, event=None) -> None:
         """Escape: Abandon the drag in progress and disarm."""
         self.canvas.clear_ghost()

@@ -83,6 +83,11 @@ def extract_nets(circuit: Circuit) -> list[Net]:
 
 def junction_points(circuit: Circuit) -> set[GridPoint]:
     """Returns points where 3 or more connections are."""
+    junctions = {point for point, count in end_counts(circuit).items() if count >= 3}
+    return junctions
+    
+def end_counts(circuit: Circuit) -> Counter[GridPoint]:
+    """Returns how many connection ends meet at each point."""
     counts: Counter[GridPoint] = Counter()
     for component in circuit.components.values():
             terminals = component.get_terminal_positions()
@@ -92,5 +97,32 @@ def junction_points(circuit: Circuit) -> set[GridPoint]:
     for wire in circuit.wires.values():
         counts[wire.start] += 1
         counts[wire.end] += 1
-    junctions = {point for point, count in counts.items() if count >= 3}
-    return junctions
+    return counts
+
+def wire_run(circuit: Circuit, wire_id: str) -> set[str]:
+    """Ids of wires joined to wire_id through pass-through points."""
+    counts = end_counts(circuit)
+    terminals = {p for c in circuit.components.values()
+                 for p in c.get_terminal_positions().values()}
+    wires_ending_at: dict[GridPoint, list[str]] = {}
+
+    for wire in circuit.wires.values():
+        for point in (wire.start, wire.end):
+            wires_ending_at.setdefault(point, []).append(wire.id)
+
+    run: set[str] = set()
+    to_visit = [wire_id]
+    while to_visit:
+        current = to_visit.pop()
+        if current in run:
+            continue
+        run.add(current)
+        wire = circuit.wires[current]
+        for point in (wire.start, wire.end):
+            is_pass_through = counts[point] == 2 and point not in terminals
+            if not is_pass_through:
+                continue
+            for other in wires_ending_at[point]:
+                if other != current:
+                    to_visit.append(other)
+    return run

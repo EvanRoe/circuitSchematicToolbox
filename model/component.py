@@ -62,6 +62,23 @@ class Component(ABC):
         }
         return data
 
+    def bounds(self) -> tuple[float, float, float, float]:
+        """Returns (min_row, min_col, max_row, max_col) of the symbol and terminals."""
+        rows = []
+        cols = []
+
+        for _kind, x1, y1, x2, y2 in self.rotated_shapes():
+            rows.extend((y1, y2))
+            cols.extend((x1, x2))
+
+        for point in self.get_terminal_positions().values():
+            rows.append(point.row - self.position.row)
+            cols.append(point.col - self.position.col)
+        return (min(rows) + self.position.row, min(cols) + self.position.col,
+                max(rows) + self.position.row, max(cols) + self.position.col)
+
+
+
     @staticmethod
     def from_dict(data: dict) -> Component:
         """Returns the specific Component from the saved dict."""

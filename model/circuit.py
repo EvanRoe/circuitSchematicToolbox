@@ -70,15 +70,20 @@ class Circuit():
             if wire.contains(point) and point != wire.start and point != wire.end:
                 return wire
         return None
+
+    def wire_at(self, point: GridPoint) -> WireSegment | None:
+        """Returns the wire that passes point, including endpoints."""
+        for wire in self.wires.values():
+            if wire.contains(point):
+                return wire
+        return None
         
 
     def component_at(self, point: GridPoint) -> Component | None:
         """Returns the component if at the GridPoint position, otherwise None."""
         for component in self.components.values():
-            points = component.get_terminal_positions().values()
-            cols = [p.col for p in points]
-            rows = [p.row for p in points]
-            if min(cols) <= point.col <= max(cols) and min(rows) <= point.row <= max(rows):
+            min_row, min_col, max_row, max_col = component.bounds()
+            if min_col <= point.col <= max_col and min_row <= point.row <= max_row:
                 return component
         return None
 
@@ -95,11 +100,3 @@ class Circuit():
         self.components.clear()
         self.wires.clear()
         self.counter.clear()
-
-
-    def to_netlist(self) -> str:
-        return '\n'.join(c.to_netlist_entry() for c in self.components.values())
-
-
-if __name__ == "__main__":
-    pass

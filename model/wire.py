@@ -87,3 +87,4 @@ def split_at_points(a: GridPoint, b: GridPoint, candidates: set[GridPoint]) -> l
     inside = {p for p in candidates if on_segment(p, a, b) and p != a and p != b}
     stops = sorted({a, b} | inside)
     return list(zip(stops, stops[1:]))
+
