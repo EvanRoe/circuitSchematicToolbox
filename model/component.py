@@ -16,6 +16,7 @@ class Component(ABC):
     display_name: str
     prefix: str
     default_unit: str
+    tikz_element: str
     default_value: int = 0
     has_value: bool = True
 
@@ -100,6 +101,7 @@ class Resistor(Component):
     display_name = 'Resistor'
     prefix = 'R'
     default_unit = 'Ω'
+    tikz_element = 'R'
 
     def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
         """Constructs a Resistor using its id, label, position, and orientation."""
@@ -121,6 +123,7 @@ class Capacitor(Component):
     display_name = 'Capacitor'
     prefix = 'C'
     default_unit = 'F'
+    tikz_element = 'C'
 
     def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
         """Constructs a Capacitor using its id, label, position, and orientation."""
@@ -143,6 +146,7 @@ class Inductor(Component):
     display_name = 'Inductor'
     prefix = 'L'
     default_unit = 'H'
+    tikz_element = 'L'
 
     def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
         """Constructs a Inductor using its id, label, position, and orientation."""
@@ -165,6 +169,7 @@ class VoltageSource(Component):
     display_name = 'Voltage Source'
     prefix = 'V'
     default_unit = 'V'
+    tikz_element = 'V'
 
     def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
         """Constructs a VoltageSource using its id, label, position, and orientation."""
@@ -190,6 +195,7 @@ class CurrentSource(Component):
     display_name = 'Current Source'
     prefix = 'I'
     default_unit = 'A'
+    tikz_element = 'I'
 
     def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
         """Constructs a CurrentSource using its id, label, position, and orientation."""
@@ -213,6 +219,7 @@ class Diode(Component):
     display_name = 'Diode'
     prefix = 'D'
     default_unit = ''
+    tikz_element = 'D'
     has_value = False
 
     def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):
@@ -238,6 +245,7 @@ class Ground(Component):
     display_name = 'Ground'
     prefix = 'GND'
     default_unit = ''
+    tikz_element = 'ground'
     has_value = False
 
     def __init__(self, id: str, label: Label, position: GridPoint, orientation: Orientation = Orientation.DEGREE_0):

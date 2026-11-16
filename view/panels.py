@@ -15,6 +15,7 @@ FILE_ACTIONS = [
     ('new', 'New'),
     ('open', 'Open...'),
     ('save', 'Save...'),
+    ('exportT', 'Export as .tex...'),
 ]
 
 class FilePanel(ttk.Frame):

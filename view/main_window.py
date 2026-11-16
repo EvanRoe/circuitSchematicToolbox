@@ -15,6 +15,7 @@ from controller.interactions import InteractionController
 from controller.stack import CommandStack
 from storage.favourites import favourite_exists, save_favourite, load_favourite, list_favourites, delete_favourite
 from storage.serialisation import load_json, save_json
+from storage.export_tikz import circuit_to_circuitikz, save_tikz
 
 SIDE_PANEL_WIDTH = 220
 
@@ -27,6 +28,7 @@ TABS = [
 FILE_TYPES = [
     ('Circuit files', '*.json'),
     ('All files', '*.*'),
+    ('LaTeX files', '*.tex'),
 ]
 
 
@@ -128,6 +130,7 @@ class MainWindow:
             'new': self._new,
             'open': self._open,
             'save': self._save,
+            'exportT': self._export_tex,
         }
         handler = file_actions[action]
         handler()
@@ -156,6 +159,16 @@ class MainWindow:
             save_json(self.circuit, Path(path))
         except OSError as e:
             messagebox.showerror("Could not save file", str(e))
+
+    def _export_tex(self) -> None:
+        """Exports the current schematic as a LaTeX file."""
+        path = filedialog.asksaveasfilename(defaultextension='.tex', filetypes=FILE_TYPES)
+        if not path: return
+        try:
+            tex = circuit_to_circuitikz(self.circuit)  
+            save_tikz(path, tex)
+        except OSError as e:
+            messagebox.showerror("Could not export file", str(e))
 
     def on_favourite_save(self) -> None:
         """Saves the current circuit as a favourite."""
