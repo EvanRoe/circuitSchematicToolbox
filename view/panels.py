@@ -13,10 +13,11 @@ from model.wire import WireSegment
 
 FILE_ACTIONS = [
     ('new', 'New'),
-    ('open', 'Open...'),
-    ('save', 'Save...'),
-    ('exportT', 'Export as .tex...'),
-]
+    ('open', 'Open'),
+    ('save', 'Save'),
+    ('exportTEX', 'Export as .tex'),
+    ('exportPDF', 'Export as .pdf')
+    ]
 
 class FilePanel(ttk.Frame):
     """The file tab in the GUI, listing file options."""

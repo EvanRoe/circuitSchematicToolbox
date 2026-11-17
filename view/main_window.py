@@ -16,6 +16,7 @@ from controller.stack import CommandStack
 from storage.favourites import favourite_exists, save_favourite, load_favourite, list_favourites, delete_favourite
 from storage.serialisation import load_json, save_json
 from storage.export_tikz import circuit_to_circuitikz, save_tikz
+from storage.export_pdf import PdfExportResult, tex_to_pdf
 
 SIDE_PANEL_WIDTH = 220
 
@@ -130,7 +131,8 @@ class MainWindow:
             'new': self._new,
             'open': self._open,
             'save': self._save,
-            'exportT': self._export_tex,
+            'exportTEX': self._export_tex,
+            'exportPDF': self._export_pdf,
         }
         handler = file_actions[action]
         handler()
@@ -162,13 +164,30 @@ class MainWindow:
 
     def _export_tex(self) -> None:
         """Exports the current schematic as a LaTeX file."""
-        path = filedialog.asksaveasfilename(defaultextension='.tex', filetypes=FILE_TYPES)
+        path = filedialog.asksaveasfilename(defaultextension='.tex', filetypes=[('LaTeX', '*.tex')])
         if not path: return
         try:
             tex = circuit_to_circuitikz(self.circuit)  
             save_tikz(path, tex)
         except OSError as e:
             messagebox.showerror("Could not export file", str(e))
+
+    def _export_pdf(self) -> None:
+        """Exports the current schematic as .tex, then compile to PDF using pdflatex."""
+        path = filedialog.asksaveasfilename(
+            defaultextension='.tex',
+            filetypes=[('PDF', '*.pdf'), ('All Files', '*.*')],
+            title='Export',
+        )
+        if not path: return
+        try:
+            tex = circuit_to_circuitikz(self.circuit)
+        except OSError as e:
+            messagebox.showerror("Could not create .tex file", str(e))
+        pdf_result = tex_to_pdf(tex, Path(path))
+        if pdf_result.pdf_path is None:
+            messagebox.showerror("Could not create pdf file", pdf_result.log_tail)
+            return
 
     def on_favourite_save(self) -> None:
         """Saves the current circuit as a favourite."""
